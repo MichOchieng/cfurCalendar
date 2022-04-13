@@ -1,5 +1,3 @@
-from cProfile import label
-from calendar import calendar
 from icalendar import Calendar, Event
 from datetime  import datetime
 from PyQt6.QtCore    import QSize, Qt, QRect
@@ -9,7 +7,6 @@ import sys
 import re
 
 # Classes
-
 class MainWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
@@ -89,10 +86,7 @@ class CalendarCreator:
     def test(self):
         print("Hello")
 
-app = QApplication([]) # Wont be using Command line args so passing []
-
+app = QApplication([])
 window = MainWindow()
-window.show() # Hidden by default
-
-app.exec() # Start event loop
-# Code from here on wont be executed until the window is closed
+window.show()
+app.exec()

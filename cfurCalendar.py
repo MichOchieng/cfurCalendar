@@ -1,3 +1,6 @@
+from os import walk
+import os
+from xmlrpc.client import Boolean
 from icalendar import Calendar, Event
 from datetime  import datetime
 from PyQt6.QtCore    import QSize, Qt, QRect
@@ -26,7 +29,8 @@ class MainWindow(QMainWindow):
         self.label.setMaximumHeight(50)
 
         self.mainInput = QLineEdit()
-        self.mainInput.setPlaceholderText("Default path is ~/Music/Radiologik/Schedule/")
+        self.mainInput.setPlaceholderText("Default path is /Music/Radiologik/Schedule/")
+    
 
         self.submitBtn = QPushButton("Generate calendar")
         self.submitBtn.clicked.connect(self.buttonClicked)
@@ -57,6 +61,14 @@ class MainWindow(QMainWindow):
         #   False -> print error to terminal
         if self.mainInput.text() != "":
             parser = Parser(self.mainInput.text())
+            # Get file names
+            if parser.getFileNames():
+                self.terminal.setText("Found scheduler files")
+            else:
+                self.terminal.setText("Could not find scheduler files in the directory '" + self.mainInput.text() + "'" )
+            # Create Calendar from files
+
+            # Return Calendar
         else: 
             self.terminal.setText("Please enter the directory containing Radiologik schedule files in the input field.")
 
@@ -91,15 +103,29 @@ class Terminal(QScrollArea):
 
 class Parser:
 
-    DIR = str
+    DIR   = str
 
+    FILES = []
 
     def __init__(self,dir) -> None:
         self.DIR = dir
         print("Dir: " + self.DIR)
 
-    def test(self):
-        print("Hello")
+    def getFileNames(self) -> bool:
+        # Scan directory for schedulue files with the following naming convention
+        # File#whitespace-whitespace
+        try:
+            for file in os.listdir(os.path.expanduser('~' + self.DIR)):
+                if re.search("[0-9][0-9][0-9]\s-\s",file):
+                    self.FILES.append(file)
+            print(self.FILES)
+        except FileNotFoundError:
+            return False
+        
+        if len(self.FILES) > 0: 
+            return True
+        else:
+            return False
 
     def run(self):
         pass

@@ -15,7 +15,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("CFUR Calendar")
         self.setFixedSize(QSize(600,750)) 
         # Add min max sizes later?
-        calendar = CalendarCreator()
+        
 
         # Widgets
         self.label = QLabel("CFUR Calendar")
@@ -26,7 +26,7 @@ class MainWindow(QMainWindow):
         self.label.setMaximumHeight(50)
 
         self.mainInput = QLineEdit()
-        self.mainInput.setPlaceholderText("Enter Radiologik schedule folder path here")
+        self.mainInput.setPlaceholderText("Default path is ~/Music/Radiologik/Schedule/")
 
         self.submitBtn = QPushButton("Generate calendar")
         self.submitBtn.clicked.connect(self.buttonClicked)
@@ -49,9 +49,19 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(container)
 
     def buttonClicked(self):
-        # Will be used to update terminal later
-        temp = self.terminal.text() + "\n"
-        self.terminal.setText(temp + "test")
+        # Refresh terminal 
+        self.terminal.setText("")
+
+        # Check to see if there is a directory entered in main input
+        #   True -> create parser object and run
+        #   False -> print error to terminal
+        if self.mainInput.text() != "":
+            parser = Parser(self.mainInput.text())
+        else: 
+            self.terminal.setText("Please enter the directory containing Radiologik schedule files in the input field.")
+
+        # # Will be used to update terminal later
+        # temp = self.terminal.text() + "\n"
 
 # Used for output terminal
 class Terminal(QScrollArea):
@@ -79,12 +89,20 @@ class Terminal(QScrollArea):
     def text(self) -> str:
         return self.label.text()
 
-class CalendarCreator:
-    def __init__(self) -> None:
-        pass
+class Parser:
+
+    DIR = str
+
+
+    def __init__(self,dir) -> None:
+        self.DIR = dir
+        print("Dir: " + self.DIR)
 
     def test(self):
         print("Hello")
+
+    def run(self):
+        pass
 
 app = QApplication([])
 window = MainWindow()

@@ -132,12 +132,14 @@ class Parser:
         self.TERMINAL.setText(temp + str(string))
 
     def readFile(self,file):
+        """
         # Open file
         # Retrieve following attributes
         #   - Title
         #   - Start time
         #   - End time
         #   - Scheduled day
+        """
 
         """
         File structure
@@ -146,7 +148,6 @@ class Parser:
         _______/         = Day Played (SMTWTFS)
         60 (or some int) = Duration
         24/24            = (24h) time being played *2
-
         """
         
         with open(file,'r',encoding='utf-8',errors='ignore') as f:
@@ -154,18 +155,34 @@ class Parser:
 
         event = Event()
 
-        days      = str
-        duration  = int
-        startTime = str
-        evenName  = str
+        days       = []
+        duration   = int
+        startTimes = []
+        evenName   = str
+
+
 
         for i,line in enumerate(lines):
             if i == 23: # Avoids going through lines that wont be used
                 break
             # Scheduled days
             if i == 1:
-                days = line.replace("_\n","")
-                self.printToTerminal(days)
+                regex = re.compile('[^a-zA-Z]')
+                # Split into an array
+                days = re.split("/",line)
+                # Determine the correct days and remove '_'
+                for i,val in enumerate(days):
+                    if val[0] == 'S':
+                        days[i] = 'Su'
+                    elif val[2] == 'T':
+                        days[i] = 'Tu'
+                    elif val[4] == 'S':
+                        days[i] = 'Sa'
+                    elif val[6] == 'T':
+                        days[i] = 'Th'
+                    else:
+                        # Only keep alphabetic chars
+                        days[i] = regex.sub('',days[i])
             # Duration
             elif i == 2:
                 duration = int(
@@ -174,15 +191,27 @@ class Parser:
                 self.printToTerminal(str(duration))
             # Start time
             elif i == 5:
-                    self.printToTerminal(line.replace("\n",""))
+                # Split into array
+                startTimes = re.split("/",line)
+                for i,val in enumerate(startTimes):
+                    # Cast into ints
+                    startTimes[i] = int(startTimes[i]) / 2
             # Event name
             elif i == 22:
                 # Strip start of the line
                 temp     = line[43:]
+                # Put everything in quotation marks in a list and grab the first occurance
                 evenName = re.findall('"([^"]*?)"',temp)[0]
                 self.printToTerminal(evenName)
-                # Pull out everything in the quotation marks
-                # self.printToTerminal(line)
+
+        # Create a list of tuples that has events day and time
+        # Filters out unused data
+        eventTimes = []
+        for i,val in enumerate(days):
+            if val != '':
+                eventTimes.append((days[i],startTimes[i]))
+        # 
+        self.printToTerminal(eventTimes)
 
     def run(self):
         self.printToTerminal("Reading files...")

@@ -26,6 +26,7 @@ class MainWindow(QMainWindow):
         self.label.setMaximumHeight(50)
 
         self.mainInput = QLineEdit()
+        self.mainInput.setText("/Documents/cfur/cfurCalendar")
         self.mainInput.setPlaceholderText("Default path is /Music/Radiologik/Schedule/")
     
 
@@ -104,7 +105,6 @@ class Parser:
     DIR      = str
     FILES    = []
     CAL      = Calendar
-    EVENT    = Event()
 
     def __init__(self,dir,terminal) -> None:
         self.DIR      = dir
@@ -138,22 +138,54 @@ class Parser:
         #   - Start time
         #   - End time
         #   - Scheduled day
+
         """
         File structure
 
         Radiologik Schedule Segment
         _______/         = Day Played (SMTWTFS)
         60 (or some int) = Duration
-        24/24            = (12h) time being played *2
+        24/24            = (24h) time being played *2
 
         """
         
         with open(file,'r',encoding='utf-8',errors='ignore') as f:
-            lines = f.readline()
-            self.printToTerminal(lines)
+            lines = f.readlines()
+
+        event = Event()
+
+        days      = str
+        duration  = int
+        startTime = str
+        evenName  = str
+
+        for i,line in enumerate(lines):
+            if i == 23: # Avoids going through lines that wont be used
+                break
+            # Scheduled days
+            if i == 1:
+                days = line.replace("_\n","")
+                self.printToTerminal(days)
+            # Duration
+            elif i == 2:
+                duration = int(
+                                line.replace(" \n","")
+                            )
+                self.printToTerminal(str(duration))
+            # Start time
+            elif i == 5:
+                    self.printToTerminal(line.replace("\n",""))
+            # Event name
+            elif i == 22:
+                # Strip start of the line
+                temp     = line[43:]
+                evenName = re.findall('"([^"]*?)"',temp)[0]
+                self.printToTerminal(evenName)
+                # Pull out everything in the quotation marks
+                # self.printToTerminal(line)
 
     def run(self):
-        self.printToTerminal("Reading files")
+        self.printToTerminal("Reading files...")
         for file in self.FILES:
             self.readFile(file)
 

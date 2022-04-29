@@ -1,12 +1,9 @@
-from os import walk
-import os
-from xmlrpc.client import Boolean
 from icalendar import Calendar, Event
 from datetime  import datetime
 from PyQt6.QtCore    import QSize, Qt, QRect
 from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QLineEdit, QLabel, QVBoxLayout, QWidget, QScrollArea
 
-import sys
+import os
 import re
 
 # Classes
@@ -60,14 +57,15 @@ class MainWindow(QMainWindow):
         #   True -> create parser object and run
         #   False -> print error to terminal
         if self.mainInput.text() != "":
-            parser = Parser(self.mainInput.text())
+            parser = Parser(self.mainInput.text(),self.terminal)
             # Get file names
             if parser.getFileNames():
-                self.terminal.setText("Found scheduler files")
+                self.terminal.setText("Found scheduler files in '" + self.mainInput.text() + "'")
+                # Create Calendar from files
+                parser.run()
             else:
                 self.terminal.setText("Could not find scheduler files in the directory '" + self.mainInput.text() + "'" )
-            # Create Calendar from files
-
+            
             # Return Calendar
         else: 
             self.terminal.setText("Please enter the directory containing Radiologik schedule files in the input field.")
@@ -102,14 +100,15 @@ class Terminal(QScrollArea):
         return self.label.text()
 
 class Parser:
+    TERMINAL = Terminal
+    DIR      = str
+    FILES    = []
+    CAL      = Calendar
+    EVENT    = Event()
 
-    DIR   = str
-
-    FILES = []
-
-    def __init__(self,dir) -> None:
-        self.DIR = dir
-        print("Dir: " + self.DIR)
+    def __init__(self,dir,terminal) -> None:
+        self.DIR      = dir
+        self.TERMINAL = terminal
 
     def getFileNames(self) -> bool:
         # Scan directory for schedulue files with the following naming convention
@@ -118,7 +117,7 @@ class Parser:
             for file in os.listdir(os.path.expanduser('~' + self.DIR)):
                 if re.search("[0-9][0-9][0-9]\s-\s",file):
                     self.FILES.append(file)
-            print(self.FILES)
+            self.printToTerminal(str(self.FILES))
         except FileNotFoundError:
             return False
         
@@ -127,8 +126,36 @@ class Parser:
         else:
             return False
 
+  # Allows print statements to go strait to the MainWindow class terminal
+    def printToTerminal(self,string):
+        temp = self.TERMINAL.text() + "\n"
+        self.TERMINAL.setText(temp + str(string))
+
+    def readFile(self,file):
+        # Open file
+        # Retrieve following attributes
+        #   - Title
+        #   - Start time
+        #   - End time
+        #   - Scheduled day
+        """
+        File structure
+
+        Radiologik Schedule Segment
+        _______/         = Day Played (SMTWTFS)
+        60 (or some int) = Duration
+        24/24            = (12h) time being played *2
+
+        """
+        
+        with open(file,'r',encoding='utf-8',errors='ignore') as f:
+            lines = f.readline()
+            self.printToTerminal(lines)
+
     def run(self):
-        pass
+        self.printToTerminal("Reading files")
+        for file in self.FILES:
+            self.readFile(file)
 
 app = QApplication([])
 window = MainWindow()

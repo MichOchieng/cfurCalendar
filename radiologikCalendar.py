@@ -1,5 +1,5 @@
 from icalendar import Calendar, Event
-from datetime  import datetime
+from datetime  import date, datetime, timedelta
 from PyQt6.QtCore    import QSize, Qt, QRect
 from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QLineEdit, QLabel, QVBoxLayout, QWidget, QScrollArea
 
@@ -105,6 +105,8 @@ class Parser:
     DIR      = str
     FILES    = []
     CAL      = Calendar
+    TODAY    = datetime.date(datetime.now())
+    SUNDAY   = TODAY - timedelta(days=TODAY.weekday()+1)
 
     def __init__(self,dir,terminal) -> None:
         self.DIR      = dir
@@ -132,6 +134,7 @@ class Parser:
         self.TERMINAL.setText(temp + str(string))
 
     def readFile(self,file):
+        self.printToTerminal("Reading file " + file + "...")
         """
         # Open file
         # Retrieve following attributes
@@ -153,14 +156,10 @@ class Parser:
         with open(file,'r',encoding='utf-8',errors='ignore') as f:
             lines = f.readlines()
 
-        event = Event()
-
         days       = []
         duration   = int
         startTimes = []
-        evenName   = str
-
-
+        eventName  = str
 
         for i,line in enumerate(lines):
             if i == 23: # Avoids going through lines that wont be used
@@ -188,7 +187,6 @@ class Parser:
                 duration = int(
                                 line.replace(" \n","")
                             )
-                self.printToTerminal(str(duration))
             # Start time
             elif i == 5:
                 # Split into array
@@ -201,20 +199,61 @@ class Parser:
                 # Strip start of the line
                 temp     = line[43:]
                 # Put everything in quotation marks in a list and grab the first occurance
-                evenName = re.findall('"([^"]*?)"',temp)[0]
-                self.printToTerminal(evenName)
+                eventName = re.findall('"([^"]*?)"',temp)[0]
 
         # Create a list of tuples that has events day and time
-        # Filters out unused data
         eventTimes = []
         for i,val in enumerate(days):
+            # Filters out unused data
             if val != '':
                 eventTimes.append((days[i],startTimes[i]))
-        # 
-        self.printToTerminal(eventTimes)
+                
+        self.createEvents(eventTimes,eventName,duration)
+        
+
+    def createEvents(self, evntTimes:tuple, title:str, duration:int):
+        self.printToTerminal("Creating calendar event for " + title + "...")
+        """
+        Events consist of:
+            - Start time
+            - End time
+            - Summary/title
+        
+        Todo:
+            - Convert evntTimes to datetime format
+                - dt format: %Y%M%D %H:%M:%S
+                - Determine what numerical day sunday is
+                - Based on sunday use tuple data to create datetimes
+        """
+
+        for val in evntTimes:
+            startDT = self.calculateDelta(val)
+            endDT   = startDT + timedelta(minutes=duration)
+            self.printToTerminal(val)
+        # target = startOfWeek + timedelta(days=1)
+        
+    
+    def calculateDelta(self,dt:tuple) -> timedelta:
+        # Determine the incoming day
+        #   Add (if needed) days to start of the week
+        # Add time to complete datetime
+        if (dt[0] == 'Su'):
+            return self.SUNDAY
+        elif (dt[0] == 'M'):
+            return (self.SUNDAY + timedelta(days=1))
+        elif (dt[0] == 'Tu'):
+            return (self.SUNDAY + timedelta(days=2))
+        elif (dt[0] == 'We'):
+            return (self.SUNDAY + timedelta(days=3))
+        elif (dt[0] == 'Th'):
+            return (self.SUNDAY + timedelta(days=4))
+        elif (dt[0] == 'F'):
+            return (self.SUNDAY + timedelta(days=5))
+        elif (dt[0] == 'Sa'):
+            return (self.SUNDAY + timedelta(days=6))
+        
 
     def run(self):
-        self.printToTerminal("Reading files...")
         for file in self.FILES:
             self.readFile(file)
 

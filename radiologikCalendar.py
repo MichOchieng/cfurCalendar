@@ -106,7 +106,11 @@ class Parser:
     FILES    = []
     CAL      = Calendar
     TODAY    = datetime.date(datetime.now())
-    SUNDAY   = TODAY - timedelta(days=TODAY.weekday()+1)
+    SUNDAY   = datetime.combine(
+        (
+            TODAY - timedelta(days=TODAY.weekday()+1)), # Date
+            datetime.min.time()                         # Time
+        )
 
     def __init__(self,dir,terminal) -> None:
         self.DIR      = dir
@@ -228,29 +232,27 @@ class Parser:
 
         for val in evntTimes:
             startDT = self.calculateDelta(val)
-            endDT   = startDT + timedelta(minutes=duration)
-            self.printToTerminal(val)
-        # target = startOfWeek + timedelta(days=1)
+            self.printToTerminal("Start: " + str(startDT))
         
     
-    def calculateDelta(self,dt:tuple) -> timedelta:
+    def calculateDelta(self,dt:tuple) -> datetime:
         # Determine the incoming day
         #   Add (if needed) days to start of the week
         # Add time to complete datetime
         if (dt[0] == 'Su'):
             return self.SUNDAY
         elif (dt[0] == 'M'):
-            return (self.SUNDAY + timedelta(days=1))
+            return self.SUNDAY + timedelta(days=1,minutes=(dt[1] * 60))
         elif (dt[0] == 'Tu'):
-            return (self.SUNDAY + timedelta(days=2))
-        elif (dt[0] == 'We'):
-            return (self.SUNDAY + timedelta(days=3))
+            return self.SUNDAY + timedelta(days=2,minutes=(dt[1] * 60))
+        elif (dt[0] == 'W'):
+            return self.SUNDAY + timedelta(days=3,minutes=(dt[1] * 60))
         elif (dt[0] == 'Th'):
-            return (self.SUNDAY + timedelta(days=4))
+            return self.SUNDAY + timedelta(days=4,minutes=(dt[1] * 60))
         elif (dt[0] == 'F'):
-            return (self.SUNDAY + timedelta(days=5))
+            return self.SUNDAY + timedelta(days=5,minutes=(dt[1] * 60))
         elif (dt[0] == 'Sa'):
-            return (self.SUNDAY + timedelta(days=6))
+            return self.SUNDAY + timedelta(days=6,minutes=(dt[1] * 60))
         
 
     def run(self):

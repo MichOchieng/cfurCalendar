@@ -112,7 +112,7 @@ class Parser:
             datetime.min.time()                         # Time
         )
 
-    def __init__(self,dir,terminal) -> None:
+    def __init__(self,dir,terminal:Terminal) -> None:
         self.DIR      = dir
         self.TERMINAL = terminal
 
@@ -137,7 +137,7 @@ class Parser:
         temp = self.TERMINAL.text() + "\n"
         self.TERMINAL.setText(temp + str(string))
 
-    def readFile(self,file):
+    def readFile(self,file:str):
         self.printToTerminal("Reading file " + file + "...")
         """
         # Open file

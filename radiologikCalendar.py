@@ -12,13 +12,13 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         #  Window Attributes
-        self.setWindowTitle("CFUR Calendar")
+        self.setWindowTitle("Radiologik Calendar")
         self.setFixedSize(QSize(600,750)) 
         # Add min max sizes later?
         
 
         # Widgets
-        self.label = QLabel("CFUR Calendar")
+        self.label = QLabel("Radiologik Calendar")
         labelFont  = self.label.font()
         labelFont.setPointSize(30)
         self.label.setFont(labelFont)
@@ -104,7 +104,8 @@ class Parser:
     TERMINAL = Terminal
     DIR      = str
     FILES    = []
-    CAL      = Calendar
+    CAL      = Calendar()
+    EVENT_LIST = [Event]
     TODAY    = datetime.date(datetime.now())
     SUNDAY   = datetime.combine(
         (
@@ -213,6 +214,7 @@ class Parser:
                 eventTimes.append((days[i],startTimes[i]))
                 
         self.createEvents(eventTimes,eventName,duration)
+        self.createFile()
         
 
     def createEvents(self, evntTimes:tuple, title:str, duration:int):
@@ -222,17 +224,20 @@ class Parser:
             - Start time
             - End time
             - Summary/title
-        
-        Todo:
-            - Convert evntTimes to datetime format
-                - dt format: %Y%M%D %H:%M:%S
-                - Determine what numerical day sunday is
-                - Based on sunday use tuple data to create datetimes
         """
 
         for val in evntTimes:
             startDT = self.calculateDelta(val)
-            self.printToTerminal("Start: " + str(startDT))
+            endDT   = startDT + timedelta(minutes=duration)
+            self.printToTerminal(str(startDT))
+            event = Event()
+            event.add('dtstart',startDT)
+            event.add('dtend',endDT)
+            event.add('summary',title)
+            self.CAL.add_component(event)
+            # self.printToTerminal("Start: " + str(startDT))
+            # self.printToTerminal("End: " + str(endDT))
+
         
     
     def calculateDelta(self,dt:tuple) -> datetime:
@@ -254,6 +259,10 @@ class Parser:
         elif (dt[0] == 'Sa'):
             return self.SUNDAY + timedelta(days=6,minutes=(dt[1] * 60))
         
+    def createFile(self):
+        f = open("cfurCal.ical", "wb")
+        f.write(self.CAL.to_ical())
+        f.close()
 
     def run(self):
         for file in self.FILES:

@@ -71,8 +71,6 @@ class MainWindow(QMainWindow):
         else: 
             self.terminal.setText("Please enter the directory containing Radiologik schedule files in the input field.")
 
-        # # Will be used to update terminal later
-        # temp = self.terminal.text() + "\n"
 
 # Used for output terminal
 class Terminal(QScrollArea):
@@ -101,13 +99,14 @@ class Terminal(QScrollArea):
         return self.label.text()
 
 class Parser:
-    TERMINAL = Terminal
-    DIR      = str
-    FILES    = []
-    CAL      = Calendar()
+    TERMINAL   = Terminal
+    DIR        = str
+    FILES      = []
+    CAL        = Calendar()
     EVENT_LIST = [Event]
-    TODAY    = datetime.date(datetime.now())
-    SUNDAY   = datetime.combine(
+    TODAY      = datetime.date(datetime.now())
+    NUM_EVENTS = 0
+    SUNDAY     = datetime.combine(
         (
             TODAY - timedelta(days=TODAY.weekday()+1)), # Date
             datetime.min.time()                         # Time
@@ -212,10 +211,8 @@ class Parser:
             # Filters out unused data
             if val != '':
                 eventTimes.append((days[i],startTimes[i]))
-                
+
         self.createEvents(eventTimes,eventName,duration)
-        self.createFile()
-        
 
     def createEvents(self, evntTimes:tuple, title:str, duration:int):
         self.printToTerminal("Creating calendar event for " + title + "...")
@@ -226,20 +223,21 @@ class Parser:
             - Summary/title
         """
 
+        # Loop through list of event times and create calendar events
         for val in evntTimes:
+            # Get event start/end times
             startDT = self.calculateDelta(val)
             endDT   = startDT + timedelta(minutes=duration)
-            self.printToTerminal(str(startDT))
+
+            # Create event and add attributes
             event = Event()
             event.add('dtstart',startDT)
             event.add('dtend',endDT)
             event.add('summary',title)
-            self.CAL.add_component(event)
-            # self.printToTerminal("Start: " + str(startDT))
-            # self.printToTerminal("End: " + str(endDT))
 
-        
-    
+            self.CAL.add_component(event)
+            self.printToTerminal("Added event to calendar.")
+
     def calculateDelta(self,dt:tuple) -> datetime:
         # Determine the incoming day
         #   Add (if needed) days to start of the week
@@ -260,13 +258,16 @@ class Parser:
             return self.SUNDAY + timedelta(days=6,minutes=(dt[1] * 60))
         
     def createFile(self):
+        # Create/overwrite new file and write new calendar to it
         f = open("cfurCal.ical", "wb")
         f.write(self.CAL.to_ical())
         f.close()
+        self.printToTerminal("Calendar file 'cfurCal' created!")
 
     def run(self):
         for file in self.FILES:
             self.readFile(file)
+        self.createFile()
 
 app = QApplication([])
 window = MainWindow()

@@ -212,7 +212,7 @@ class Parser:
             if val != '':
                 eventTimes.append((days[i],startTimes[i]))
 
-        self.createEvents(eventTimes,eventName,duration)
+        self.createEvents(eventTimes,eventName,duration) 
 
     def createEvents(self, evntTimes:tuple, title:str, duration:int):
         self.printToTerminal("Creating calendar event for " + title + "...")
@@ -236,7 +236,7 @@ class Parser:
             event.add('summary',title)
 
             self.CAL.add_component(event)
-            self.printToTerminal("Added event to calendar.")
+            self.printToTerminal("Added " + title + " to calendar.")
 
     def calculateDelta(self,dt:tuple) -> datetime:
         # Determine the incoming day

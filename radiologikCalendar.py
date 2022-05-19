@@ -234,9 +234,13 @@ class Parser:
             event.add('dtstart',startDT)
             event.add('dtend',endDT)
             event.add('summary',title)
+            self.EVENT_LIST.append(event)
 
+
+    def createCalendar(self):
+        for event in self.EVENT_LIST:
             self.CAL.add_component(event)
-            self.printToTerminal("Added " + title + " to calendar.")
+            self.printToTerminal("Added event to calendar.")
 
     def calculateDelta(self,dt:tuple) -> datetime:
         # Determine the incoming day
@@ -268,6 +272,7 @@ class Parser:
         for file in self.FILES:
             self.readFile(file)
         self.createFile()
+        self.createCalendar()
 
 app = QApplication([])
 window = MainWindow()

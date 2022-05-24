@@ -1,8 +1,27 @@
-import { Grid, Paper } from "@mui/material";
-import React, { ReactElement,FC } from "react";
+import { Button, Grid, Paper } from "@mui/material";
+import React, { ReactElement,FC, useState, useCallback } from "react";
+import classNames from "classnames";
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+
+import UploadArea from "../upload-area/upload-area";
+import FileList from "../upload-area/file-list";
+
 
 
 const MainUi = () => {
+
+    // Create states for upload area and uploaded files
+    const [isAreaActive,setIsAreaActive] = useState(false)
+    const [files,setFiles]               = useState<File[]>([])
+
+    // Handlers for dragging and dropping on upload area
+    const onDragStateChange = useCallback((dragActive: boolean) => {
+        setIsAreaActive(dragActive)
+    }, [])
+    const onDropFiles = useCallback((files: File[]) => {
+        setFiles(files)
+    }, [])
+
     return (
         <Grid
             container
@@ -12,20 +31,39 @@ const MainUi = () => {
                 item
                 xs={6}
             >
-                <h1>test</h1>
+                <Button>test</Button>
             </Grid>
             <Grid 
                 item
                 xs={6}
             >
-                <h1>test3</h1>
+                <Button>test</Button>
             </Grid>
             {/* Second row */}
             <Grid 
                 item
                 xs={12}
             >
-                <h1>test2</h1>
+                <Paper
+                    className={classNames('uploadArea', {
+                        'uploadAreaActive': isAreaActive
+                    })}
+                >
+                    <UploadArea
+                        onDragStateChange={onDragStateChange}
+                        onDropFiles={onDropFiles}
+                    >
+                        <h2>Drop here</h2>
+                            {files.length === 0 ? (
+                                <h3>No Files to scan</h3>
+                                ) :
+                                (
+                                    <h3>Files to scan: {files.length}</h3>
+                                )
+                            }
+                        <FileList files={files}/>
+                    </UploadArea>
+                </Paper>
             </Grid>
             {/* Thrid row */}
             <Grid 

@@ -2,7 +2,7 @@ import { Button, Paper } from "@mui/material";
 import React, {memo, useCallback, useEffect, useRef, useState} from "react";
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 
-import { IUploadArea } from "./IUploadArea";
+import { IUploadArea } from "./interfaces/IUploadArea";
 
 const UploadArea = memo(
     (props: React.PropsWithChildren<IUploadArea>) => {

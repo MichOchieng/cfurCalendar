@@ -1,10 +1,10 @@
 import { Button, Paper } from "@mui/material";
-import React, {useRef, useState} from "react";
+import React, {memo, useCallback, useEffect, useRef, useState} from "react";
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 
 import { IUploadArea } from "./IUploadArea";
 
-const UploadArea = React.memo(
+const UploadArea = memo(
     (props: React.PropsWithChildren<IUploadArea>) => {
         const {
             onDrag,
@@ -20,7 +20,19 @@ const UploadArea = React.memo(
         const UploadAreaRef = useRef<null | HTMLDivElement>(null)
 
         // Functions
-        const handleDragIn = React.useCallback(
+
+        // Take FileList and map to an array
+        const mapFiles = (files: FileList) => {
+            const arr = []
+            
+            for (let i = 0; i< files.length; i++){
+                arr.push(files.item(i))
+            }
+
+            return arr as File[]
+        }
+        //      Handlers
+        const handleDragIn = useCallback(
             (e: any) => {
                 // Stops default dragging behaviour and propagation from parent to child
                 e.preventDefault()
@@ -36,7 +48,7 @@ const UploadArea = React.memo(
             [onDragIn]
         )
 
-        const handleDragOut = React.useCallback(
+        const handleDragOut = useCallback(
             (e: any) => {
                 // Stops default dragging behaviour and propagation from parent to child
                 e.preventDefault()
@@ -48,7 +60,7 @@ const UploadArea = React.memo(
             [onDragOut]
         )
 
-        const handleDrag = React.useCallback(
+        const handleDrag = useCallback(
             (e: any) => {
                 // Stops default dragging behaviour and propagation from parent to child
                 e.preventDefault()
@@ -64,7 +76,7 @@ const UploadArea = React.memo(
             [isDragging,onDrag]
         )
 
-        const handleDrop = React.useCallback(
+        const handleDrop = useCallback(
             (e: any) => {
                 // Stops default dragging behaviour and propagation from parent to child
                 e.preventDefault()
@@ -75,18 +87,40 @@ const UploadArea = React.memo(
 
                 if (e.dataTransfer.items && e.dataTransfer.length > 0){
                     // Add files to an array
-                    const uploadFiles = []
+                    const uploadFiles = mapFiles(e.data.dataTransfer.files)
 
-                    for (let i = 0; i < e.dataTransfer.files.length; i++){
-                        uploadFiles.push(e.dataTransfer.files.item(i))
-                    }
                     onDropFiles?.(uploadFiles)
-                    e.dataTransfer.clearData() // Clear upload area for next upload
+                    // Clear upload area for next upload
+                    e.dataTransfer.clearData() 
                 }
                
             },
             [onDrop,onDropFiles]
         )
+        
+        // Watch for and emit state changes
+        useEffect(() => {
+            onDragStateChange?.(isDragging)
+        },[isDragging])
+
+        // Attach listeners to the upload area
+        useEffect(() => {
+            const temp = UploadAreaRef?.current
+            if(temp) {
+                temp.addEventListener('dragenter',handleDrag)
+                temp.addEventListener('dragenter',handleDrop)
+                temp.addEventListener('dragenter',handleDragIn)
+                temp.addEventListener('dragenter',handleDragOut)
+            }
+
+            // Unmount liteners
+            return () => {
+                temp?.removeEventListener('dragenter',handleDrag)
+                temp?.removeEventListener('dragenter',handleDrop)
+                temp?.removeEventListener('dragenter',handleDragIn)
+                temp?.removeEventListener('dragenter',handleDragOut)
+            }
+        })
         
         // Rendered HTML 
         return (

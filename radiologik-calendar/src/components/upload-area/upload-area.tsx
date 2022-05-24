@@ -7,13 +7,6 @@ import {
         useState
         } 
     from "react";
-import { 
-        Button,
-        Paper 
-        } 
-    from "@mui/material";
-import UploadFileIcon from '@mui/icons-material/UploadFile';
-
 import { IUploadArea } from "./interfaces/IUploadArea";
 
 const UploadArea = memo(
@@ -35,6 +28,7 @@ const UploadArea = memo(
 
         // Take FileList and map to an array
         const mapFiles = (files: FileList) => {
+            console.log("mapping");
             const arr = []
             
             for (let i = 0; i< files.length; i++){
@@ -54,6 +48,7 @@ const UploadArea = memo(
 
                 // If a file is being dragged set the isDragging var to true
                 if (e.dataTransfer.items && e.dataTransfer.length > 0){
+                    console.log("handleDragIn");
                     setIsDragging(true)
                 }
             },
@@ -68,6 +63,7 @@ const UploadArea = memo(
                 
                 onDragOut?.()
                 setIsDragging(false)
+                console.log("handleDragOut");
             },
             [onDragOut]
         )
@@ -84,6 +80,7 @@ const UploadArea = memo(
                 if (!isDragging){
                     setIsDragging(true)
                 }
+                console.log("handleDrag");
             },
             [isDragging,onDrag]
         )
@@ -96,10 +93,13 @@ const UploadArea = memo(
                 
                 setIsDragging(false)
                 onDrop?.()
+                console.log("handleDrop");
 
-                if (e.dataTransfer.items && e.dataTransfer.length > 0){
+                if (e.dataTransfer.files && e.dataTransfer.files.length > 0){
                     // Add files to an array
-                    const uploadFiles = mapFiles(e.data.dataTransfer.files)
+                    console.log("uploading");
+                    
+                    const uploadFiles = mapFiles(e.dataTransfer.files)
 
                     onDropFiles?.(uploadFiles)
                     // Clear upload area for next upload
@@ -119,18 +119,20 @@ const UploadArea = memo(
         useEffect(() => {
             const temp = UploadAreaRef?.current
             if(temp) {
-                temp.addEventListener('dragenter',handleDrag)
-                temp.addEventListener('dragenter',handleDrop)
+                console.log("Mounting...");
+                temp.addEventListener('drop',handleDrop)
+                temp.addEventListener('dragover',handleDrag)
                 temp.addEventListener('dragenter',handleDragIn)
-                temp.addEventListener('dragenter',handleDragOut)
+                temp.addEventListener('dragleave',handleDragOut)
             }
 
             // Unmount liteners
             return () => {
-                temp?.removeEventListener('dragenter',handleDrag)
-                temp?.removeEventListener('dragenter',handleDrop)
+                console.log("Unmounting...");
+                temp?.removeEventListener('drop',handleDrop)
+                temp?.removeEventListener('dragover',handleDrag)
                 temp?.removeEventListener('dragenter',handleDragIn)
-                temp?.removeEventListener('dragenter',handleDragOut)
+                temp?.removeEventListener('dragleave',handleDragOut)
             }
         })
         

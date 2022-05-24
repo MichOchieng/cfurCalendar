@@ -21,10 +21,7 @@ const theme =  createTheme({
 const App = () => {
     return(
         <>
-            <CssBaseline/>
-            <Header></Header>
-            <MainUi></MainUi>
-            <Settings/>
+            <MainUi/>
         </>
     )
 }

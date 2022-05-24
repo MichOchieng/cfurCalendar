@@ -1,77 +1,89 @@
 import { Button, Paper } from "@mui/material";
-import React, {Component, useRef, useState} from "react";
+import React, {useRef, useState} from "react";
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 
+const MAX_FILE_SIZE = 500000; // Bytes => 0.5mb
 
-class UploadArea extends Component{
+const UploadArea = (
+    // label: string,
+    // updateFilesCb: any,
+    // maxFileSize = MAX_FILE_SIZE,
+    ...otherProps: any[]
+) => {
+    const [files, setFiles] = useState({});
+    const fileInputField    = useRef(null)
 
-    state = {
-        dragging: false,
-        drags: 0
-    }
+    // const handleUploadBtnClick = () => {
+    //     fileInputField.current.click();
+    //   };
 
-    // e.preventDefault()
-    // - Stops default behavior from the browser when dragging occurs
-    // e.stopPropagation()
-    // - Stops propagation from parent to child
+    // const addNewFiles = (newFiles: any) => {
+    //     for (let file of newFiles) {
+    //         if (file.size <= maxFileSize){
+    //             if(otherProps.length > 1){
+    //                 return {file};
+    //             }
+    //             files[file.name] = file;
+    //         }
+    //     }
+    //     return {...files};
+    // };
 
+    // const callUpdateFilesCb = (files: any) => {
+    //     const filesAsArray = convertNestedObjectToArray(files);
+    //     updateFilesCb(filesAsArray);
+    //   };
+    
+    //   const handleNewFileUpload = (e: any) => {
+    //     const { files: newFiles } = e.target;
+    //     if (newFiles.length) {
+    //       let updatedFiles = addNewFiles(newFiles);
+    //       setFiles(updatedFiles);
+    //       callUpdateFilesCb(updatedFiles);
+    //     }
+    //   };
+    
+    //   const removeFile = (fileName: any) => {
+    //     delete files[fileName];
+    //     setFiles({ ...files });
+    //     callUpdateFilesCb({ ...files });
+    //   };
 
-    onDrag = (e: any) => {
-        e.preventDefault()
-        e.stopPropagation()
-    }
-
-    onDragIn = (e: any) => {
-        e.preventDefault()
-        e.stopPropagation()
-        // Check to see if anything is being dragged and change to state accordingly
-        this.state.drags++
-        if(e.dataTransfer.items && e.dataTransfer.items.length > 0){
-            this.setState({dragging: true})
-        }
-    }
-
-    onDragOut = (e: any) => {
-        e.preventDefault()
-        e.stopPropagation()
-
-        this.state.drags--
-        if (this.state.drags > 0 ) return
-        this.setState({dragging: false})
-    }
-
-    onDrop = (e: any) => {
-        e.preventDefault()
-        e.stopPropagation()
-    }
-
-    dropRef = React.createRef();
-
-    componentDidMount() {
-        let div = this.dropRef.current as HTMLElement
-        div.addEventListener('dragenter', this.onDragIn)
-        div.addEventListener('dragleave', this.onDragOut)
-        div.addEventListener('dragover', this.onDrag)
-        div.addEventListener('drop', this.onDrop)
-    }
-
-    componentWillMount() {
-        let div = this.dropRef.current as HTMLElement
-        div.removeEventListener('dragenter', this.onDragIn)
-        div.removeEventListener('dragleave', this.onDragOut)
-        div.removeEventListener('dragover', this.onDrag)
-        div.removeEventListener('drop', this.onDrop)
-    }
-
-    render() {
-        return(
-            <div
-                ref={this.dropRef as React.RefObject<HTMLDivElement>}
-            >
-                
-            </div>
-        )
-    }
+    return(
+        <>
+            {/* Upload area */}
+            <Paper>
+                {/* <label>{label}</label> */}
+                <p>Drag and drop files here!</p>
+                {/* Add border and padding to button also needs to be centered with elements */}
+                <Button>
+                    <i><UploadFileIcon/></i>
+                    <span>
+                        Upload file(s){/*otherProps.multiple ? "files" : "a file"*/}
+                    </span>
+                </Button>
+                <input 
+                    type="file" 
+                    ref={fileInputField}
+                    title=""
+                    value=""
+                    {...otherProps}
+                />
+            </Paper>
+            {/* Upload preview */}
+            {/* <article>
+                <span>To scan</span>
+                <section>
+                    {Object.keys(files).map((filename,index) => {
+                        let file = files[filename];
+                        return(
+                            
+                        )
+                    })}
+                </section>
+            </article> */}
+        </>
+    )
 }
 
 export default UploadArea

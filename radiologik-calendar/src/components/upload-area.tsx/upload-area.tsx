@@ -2,11 +2,8 @@ import { Button, Paper } from "@mui/material";
 import React, {Component, useRef, useState} from "react";
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 
-interface UploadAreaProps {
-    children: string,
-}
 
-class UploadArea extends Component<UploadAreaProps>{
+class UploadArea extends Component{
 
     state = {
         dragging: false,
@@ -71,7 +68,7 @@ class UploadArea extends Component<UploadAreaProps>{
             <div
                 ref={this.dropRef as React.RefObject<HTMLDivElement>}
             >
-                {this.props.children}
+                
             </div>
         )
     }

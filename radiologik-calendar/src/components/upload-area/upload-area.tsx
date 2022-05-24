@@ -1,11 +1,23 @@
-import { Button, Paper } from "@mui/material";
-import React, {memo, useCallback, useEffect, useRef, useState} from "react";
+import { 
+        memo,
+        PropsWithChildren,
+        useCallback,
+        useEffect,
+        useRef,
+        useState
+        } 
+    from "react";
+import { 
+        Button,
+        Paper 
+        } 
+    from "@mui/material";
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 
 import { IUploadArea } from "./interfaces/IUploadArea";
 
 const UploadArea = memo(
-    (props: React.PropsWithChildren<IUploadArea>) => {
+    (props: PropsWithChildren<IUploadArea>) => {
         const {
             onDrag,
             onDrop,

@@ -7,7 +7,7 @@ const FileList = memo(
     (props: PropsWithChildren<IFileList>) => (
         <Paper
             sx={{
-                boxShadow:"none"
+                boxShadow:"none",
             }}
         >
             <List>

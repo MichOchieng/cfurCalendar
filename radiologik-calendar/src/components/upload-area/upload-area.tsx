@@ -8,6 +8,7 @@ import {
         } 
     from "react";
 import { IUploadArea } from "./interfaces/IUploadArea";
+import { Paper } from "@mui/material";
 
 const UploadArea = memo(
     (props: PropsWithChildren<IUploadArea>) => {
@@ -138,11 +139,19 @@ const UploadArea = memo(
         
         // Rendered HTML 
         return (
-            <div
+            <Paper
                 ref={UploadAreaRef}
+                sx={{
+                    width:"90%",
+                    height:"80%",
+                    border: "2px dashed #987407",
+                    padding:"1em",
+                    margin:"0 auto",
+                    boxShadow:"none",
+                }}
             >
                 {props.children}
-            </div>
+            </Paper>
         )
     }      
 )

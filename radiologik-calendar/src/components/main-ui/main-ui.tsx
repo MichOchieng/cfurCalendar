@@ -1,12 +1,22 @@
-import { Button, Grid, Paper } from "@mui/material";
-import React, { ReactElement,FC, useState, useCallback } from "react";
+import { 
+        AppBar,
+        Button,
+        Container,
+        Grid,
+        Paper, 
+        Typography 
+        } 
+    from "@mui/material";
+import { 
+        useState,
+        useCallback 
+        } 
+    from "react";
 import classNames from "classnames";
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 
 import UploadArea from "../upload-area/upload-area";
 import FileList from "../upload-area/file-list";
-
-
 
 const MainUi = () => {
 
@@ -22,23 +32,42 @@ const MainUi = () => {
         setFiles(files)
     }, [])
 
+    const test = () => {
+        let f = files[0]
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const txt = reader.result;
+            console.log(txt);
+            
+        };
+        reader.readAsText(f)
+        
+    }
+
     return (
         <Grid
             container
         >
             {/* First row */}
-            <Grid 
-                item
-                xs={6}
+            <AppBar
+                position="static"
+                sx={{
+                    marginBottom:"10vh",
+
+                }}
             >
-                <Button>test</Button>
-            </Grid>
-            <Grid 
-                item
-                xs={6}
-            >
-                <Button>test</Button>
-            </Grid>
+                <Container
+                    maxWidth="xl"
+                >
+                    <Typography
+                        variant="h6" 
+                        component="div" 
+                        sx={{ flexGrow: 1, padding:"0.5em" }}
+                    >
+                        Radiologik Calendar
+                    </Typography>   
+                </Container>
+            </AppBar>
             {/* Second row */}
             <Grid 
                 item
@@ -48,14 +77,27 @@ const MainUi = () => {
                     className={classNames('uploadArea', {
                         'uploadAreaActive': isAreaActive
                     })}
+                    sx={{
+                        width: "80vw",
+                        height: "30vh",
+                        margin:"0 auto",
+                        marginBottom:"10vh",
+                        display:"flex",
+                        alignItems:"center",
+                        justifyContent:"center",
+                    }}
                 >
                     <UploadArea
                         onDragStateChange={onDragStateChange}
                         onDropFiles={onDropFiles}
+                        // sx={{
+                        //     width: "100%",
+                        //     height: "100%",
+                        // }}
                     >
-                        <h2>Drop here</h2>
+                        <h2>Drop files here</h2>
                             {files.length === 0 ? (
-                                <h3>No Files to scan</h3>
+                                <h3>No files to scan</h3>
                                 ) :
                                 (
                                     <h3>Files to scan: {files.length}</h3>
@@ -68,9 +110,17 @@ const MainUi = () => {
             {/* Thrid row */}
             <Grid 
                 item
-                xs={12}
+                xs={6}
             >
-                <h1>test4</h1>
+                <Button
+                    onClick={test}
+                >test</Button>
+            </Grid>
+            <Grid 
+                item
+                xs={6}
+            >
+                <Button>test</Button>
             </Grid>
         </Grid>
     )

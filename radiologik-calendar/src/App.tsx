@@ -4,25 +4,28 @@ import MainUi   from './components/main-ui/main-ui';
 import Settings from './components/settings/settings';
 import Header   from './components/header/header';
 import { createTheme }   from '@mui/system';
-import { ThemeProvider,CssBaseline } from '@mui/material';
+import { ThemeProvider,CssBaseline, Paper } from '@mui/material';
 
-const theme =  createTheme({
-    palette: {
-        type: 'dark',
-        primary: {
-          main: '#000000',
-        },
-        secondary: {
-          main: '#987407',
-        },
-      }
-})
+import { theme } from './styles';
 
 const App = () => {
     return(
-        <>
+        <ThemeProvider
+          theme={theme}
+        >
+          <Paper
+            sx={{
+              height:"100%",
+              width:"100%",
+              display:"flex",
+              alignItems:"center",
+              justifyContent:"center",
+            }}
+          >
             <MainUi/>
-        </>
+          </Paper>
+          <CssBaseline/>
+        </ThemeProvider>
     )
 }
 

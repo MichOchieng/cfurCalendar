@@ -148,6 +148,7 @@ const UploadArea = memo(
                     padding:"1em",
                     margin:"0 auto",
                     boxShadow:"none",
+                    overflowY:"scroll",
                 }}
             >
                 {props.children}

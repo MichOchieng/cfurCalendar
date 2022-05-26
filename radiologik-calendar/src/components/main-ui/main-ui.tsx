@@ -17,7 +17,6 @@ import UploadFileIcon from '@mui/icons-material/UploadFile';
 
 import UploadArea from "../upload-area/upload-area";
 import FileList from "../upload-area/file-list";
-import { start } from "repl";
 
 const MainUi = () => {
 
@@ -95,19 +94,24 @@ const MainUi = () => {
                             break;
                     }
                 }
-                // Create a list of tuples with event day and time
+                // Create a list of 'tuples' with event day and time
                 for (const [index,val] of days.entries()) {
                     if (val != ''){
                         eventTimes.push([days[index],startTimes[index]])
                     }
                 }
-                console.log(eventName);
-                console.log(eventTimes);
-                console.log(duration);
-                console.log(startTimes);
+                createEvents(eventTimes,eventName,duration)
             };
             let file = files[i];
             reader.readAsText(file)
+        }
+    }
+
+    function createEvents(eventTimes: [string,number][], name: string, duration: number){
+        for (let index = 0; index < eventTimes.length; index++) {
+            console.log(name);
+            console.log(eventTimes[index]);
+            console.log(duration);
         }
     }
 

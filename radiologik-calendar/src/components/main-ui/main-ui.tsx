@@ -14,23 +14,28 @@ import {
     from "react";
 import classNames from "classnames";
 import UploadFileIcon from '@mui/icons-material/UploadFile';
+import { Builder, Calendar } from "ikalendar";
 
 import UploadArea from "../upload-area/upload-area";
 import FileList from "../upload-area/file-list";
+import moment from "moment";
 
 const MainUi = () => {
 
     // Create states for upload area and uploaded files
-    const [isAreaActive,setIsAreaActive] = useState(false)
-    const [files,setFiles]               = useState<File[]>([])
+    const [isAreaActive,setIsAreaActive] = useState(false);
+    const [files,setFiles]               = useState<File[]>([]);
+
+    const events = [];
+    const sunday = moment().day("Sunday").set("hour",0).set("minute",0).set("second",0);
 
     // Handlers for dragging and dropping on upload area
     const onDragStateChange = useCallback((dragActive: boolean) => {
         setIsAreaActive(dragActive)
-    }, [])
+    }, []);
     const onDropFiles = useCallback((files: File[]) => {
         setFiles(files)
-    }, [])
+    }, []);
 
     // Handlers for reading files
     function readFile (){
@@ -39,32 +44,32 @@ const MainUi = () => {
             let reader = new FileReader();  // Not a const to allow for reader to be refreshed
             reader.onloadend = () => {
                 // Seperate lines of each file
-                let lines = (reader.result as string).split(/\r\n|\n/)
-                let days:       string[] = []
-                let duration:   number   = 0
-                let startTimes: number[] = []
-                let eventName:  string   = ''
-                let eventTimes: [string,number][] = []
+                let lines = (reader.result as string).split(/\r\n|\n/);
+                let days:       string[] = [];
+                let duration:   number   = 0;
+                let startTimes: number[] = [];
+                let eventName:  string   = '';
+                let eventTimes: [string,number][] = [];
                 for (let j = 0; j < 23; j++) {
                     // Init vars
                     switch(j){
                         // Scheduled days
                         case 1:
-                            const tempDays = lines[j].split("/")
+                            const tempDays = lines[j].split("/");
                             days = tempDays
                             // Determine the correct days and remove '_'
                             for (const [index,val] of tempDays.entries()) {
                                 if (val[0] == 'S'){
-                                    days[index] = 'Su'
+                                    days[index] = "Su";
                                 }
                                 else if (val[2] == 'T'){
-                                    days[index] = 'Tu'
+                                    days[index] = "Tu";
                                 }
                                 else if (val[4] == 'S'){
-                                    days[index] = 'Sa'
+                                    days[index] = "Sa";
                                 }
                                 else if (val[6] == 'T'){
-                                    days[index] = 'Th'
+                                    days[index] = "Th";
                                 }
                                 else {
                                     // Only keeps alphabetic chars
@@ -103,15 +108,42 @@ const MainUi = () => {
                 createEvents(eventTimes,eventName,duration)
             };
             let file = files[i];
-            reader.readAsText(file)
+            reader.readAsText(file);
         }
     }
 
     function createEvents(eventTimes: [string,number][], name: string, duration: number){
         for (let index = 0; index < eventTimes.length; index++) {
+            let startdt = calculateDateTime(eventTimes[index]);
+            let enddt = moment(startdt).add(duration,"minutes");
             console.log(name);
-            console.log(eventTimes[index]);
-            console.log(duration);
+            console.log(startdt);
+            console.log(enddt);
+        }
+    }
+
+    // Uses the 'sunday' const to calculate a date time from the incoming event times
+    function calculateDateTime(eventTimes: [string,number]){
+        for (let index = 0; index < eventTimes.length; index++) {
+            switch (eventTimes[0]) {
+                case "Su":
+                    return sunday.set("hour",eventTimes[1]);
+                case "M":
+                    return moment(sunday).add(1,'day').set("hour",eventTimes[1]);
+                case "Tu":
+                    return moment(sunday).add(2,'day').set("hour",eventTimes[1]);
+                case "W":
+                    return moment(sunday).add(3,'day').set("hour",eventTimes[1]);
+                case "Th":
+                    return moment(sunday).add(4,'day').set("hour",eventTimes[1]);
+                case "F":
+                    return moment(sunday).add(5,'day').set("hour",eventTimes[1]);
+                case "Sa":
+                    return moment(sunday).add(6,'day').set("hour",eventTimes[1]);
+                default:
+                    console.log("Error occured calculating event datetime!")
+                    break;
+            }
         }
     }
 

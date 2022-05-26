@@ -17,6 +17,7 @@ import UploadFileIcon from '@mui/icons-material/UploadFile';
 
 import UploadArea from "../upload-area/upload-area";
 import FileList from "../upload-area/file-list";
+import { start } from "repl";
 
 const MainUi = () => {
 
@@ -32,16 +33,82 @@ const MainUi = () => {
         setFiles(files)
     }, [])
 
-    const test = () => {
-        let f = files[0]
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            const txt = reader.result;
-            console.log(txt);
-            
-        };
-        reader.readAsText(f)
-        
+    // Handlers for reading files
+    function readFile (){
+        // Loop through files from the upload area
+        for (let i = 0; i < files.length; i++) {
+            let reader = new FileReader();  // Not a const to allow for reader to be refreshed
+            reader.onloadend = () => {
+                // Seperate lines of each file
+                let lines = (reader.result as string).split(/\r\n|\n/)
+                let days:       string[] = []
+                let duration:   number   = 0
+                let startTimes: number[] = []
+                let eventName:  string   = ''
+                let eventTimes: [string,number][] = []
+                for (let j = 0; j < 23; j++) {
+                    // Init vars
+                    switch(j){
+                        // Scheduled days
+                        case 1:
+                            const tempDays = lines[j].split("/")
+                            days = tempDays
+                            // Determine the correct days and remove '_'
+                            for (const [index,val] of tempDays.entries()) {
+                                if (val[0] == 'S'){
+                                    days[index] = 'Su'
+                                }
+                                else if (val[2] == 'T'){
+                                    days[index] = 'Tu'
+                                }
+                                else if (val[4] == 'S'){
+                                    days[index] = 'Sa'
+                                }
+                                else if (val[6] == 'T'){
+                                    days[index] = 'Th'
+                                }
+                                else {
+                                    // Only keeps alphabetic chars
+                                    days[index] = days[index].replace(/[^A-Za-z0-9]/g,"") 
+                                }
+                            }
+                            break;
+                        // Duration
+                        case 2:
+                            duration += parseInt(lines[j].replace(" \n",""))
+                            break;
+                        //  Start times
+                        case 5:
+                            // Converts strings of start times to ints
+                            let temp1 = lines[j].split("/")
+                            for (let index = 0; index < temp1.length; index++) {
+                                startTimes.push(parseInt(temp1[index])/2)
+                            }
+                            break;
+                        // Event name
+                        case 22:
+                            // Strip the first 43 chars
+                            // Put everything in quotation mars in a list and grab the first occurance
+                            let temp   = lines[j].slice(43)
+                            let temp2  = temp.match('"([^"]*?)"')
+                            eventName  = ((temp2 != null) ? temp2[0] : "")
+                            break;
+                    }
+                }
+                // Create a list of tuples with event day and time
+                for (const [index,val] of days.entries()) {
+                    if (val != ''){
+                        eventTimes.push([days[index],startTimes[index]])
+                    }
+                }
+                console.log(eventName);
+                console.log(eventTimes);
+                console.log(duration);
+                console.log(startTimes);
+            };
+            let file = files[i];
+            reader.readAsText(file)
+        }
     }
 
     return (
@@ -90,12 +157,8 @@ const MainUi = () => {
                     <UploadArea
                         onDragStateChange={onDragStateChange}
                         onDropFiles={onDropFiles}
-                        // sx={{
-                        //     width: "100%",
-                        //     height: "100%",
-                        // }}
                     >
-                        <h2>Drop files here</h2>
+                        <h2> Drop files here</h2>
                             {files.length === 0 ? (
                                 <h3>No files to scan</h3>
                                 ) :
@@ -113,14 +176,19 @@ const MainUi = () => {
                 xs={6}
             >
                 <Button
-                    onClick={test}
-                >test</Button>
+                    onClick={readFile}
+                    variant="contained"
+                    color="secondary"
+                >Run</Button>
             </Grid>
             <Grid 
                 item
                 xs={6}
             >
-                <Button>test</Button>
+                <Button
+                    variant="contained"
+                    color="secondary"
+                >Settings</Button>
             </Grid>
         </Grid>
     )

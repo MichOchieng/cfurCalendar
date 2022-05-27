@@ -26,8 +26,8 @@ const MainUi = () => {
     const [isAreaActive,setIsAreaActive] = useState(false);
     const [files,setFiles]               = useState<File[]>([]);
 
-    const events = [];
-    const sunday = moment().day("Sunday").set("hour",0).set("minute",0).set("second",0);
+    const events: any = [];
+    const sunday = moment().day("Sunday").hour(0).minute(0).seconds(0);
 
     // Handlers for dragging and dropping on upload area
     const onDragStateChange = useCallback((dragActive: boolean) => {
@@ -114,12 +114,31 @@ const MainUi = () => {
 
     function createEvents(eventTimes: [string,number][], name: string, duration: number){
         for (let index = 0; index < eventTimes.length; index++) {
-            let startdt = calculateDateTime(eventTimes[index]);
-            let enddt = moment(startdt).add(duration,"minutes");
-            console.log(name);
-            console.log(startdt);
-            console.log(enddt);
+            let date    = calculateDateTime(eventTimes[index]);
+            let startdt = date?.format("YYYYMMDDHHmmSS");
+            let enddt   = date?.add(duration,"minutes").format("YYYYMMDDHHmmSS");
+
+            events.push({
+                description: name,
+                class: 'PUBLIC',
+                start:{
+                    value: startdt,
+                    tzId:'America/Los_Angeles'
+                },
+                end:  {
+                    value: enddt,
+                    tzId:'America/Los_Angeles'
+                },
+            });
+
         }
+        const cal: Calendar = {
+            version: '1.0',
+            prodId:'CFUR',
+            events: events
+        }
+        // const builder = new Builder(cal)
+        // let mycalendar = builder.build()
     }
 
     // Uses the 'sunday' const to calculate a date time from the incoming event times
@@ -146,7 +165,10 @@ const MainUi = () => {
             }
         }
     }
+    // Converts moment.js datetime format to a format supported by ikalendar
+    function convertDateTime(_datetime: any){
 
+    }
     return (
         <Grid
             container

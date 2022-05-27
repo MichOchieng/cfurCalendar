@@ -211,7 +211,7 @@ class Parser:
             # Filters out unused data
             if val != '':
                 eventTimes.append((days[i],startTimes[i]))
-
+        self.printToTerminal(eventTimes)
         self.createEvents(eventTimes,eventName,duration) 
 
     def createEvents(self, evntTimes:tuple, title:str, duration:int):

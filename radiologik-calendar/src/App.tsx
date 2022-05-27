@@ -3,7 +3,6 @@ import React from 'react';
 import MainUi   from './components/main-ui/main-ui';
 import Settings from './components/settings/settings';
 import Header   from './components/header/header';
-import { createTheme }   from '@mui/system';
 import { ThemeProvider,CssBaseline, Paper } from '@mui/material';
 
 import { theme } from './styles';

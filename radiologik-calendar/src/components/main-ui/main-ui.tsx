@@ -14,7 +14,6 @@ import {
     from "react";
 import classNames from "classnames";
 import UploadFileIcon from '@mui/icons-material/UploadFile';
-import { Builder, Calendar } from "ikalendar";
 
 import UploadArea from "../upload-area/upload-area";
 import FileList from "../upload-area/file-list";
@@ -26,6 +25,7 @@ const MainUi = () => {
     const [isAreaActive,setIsAreaActive] = useState(false);
     const [files,setFiles]               = useState<File[]>([]);
 
+    const ics    = require('ics');
     const events: any = [];
     const sunday = moment().day("Sunday").hour(0).minute(0).seconds(0);
 
@@ -109,38 +109,38 @@ const MainUi = () => {
             };
             let file = files[i];
             reader.readAsText(file);
+
         }
     }
 
     function createEvents(eventTimes: [string,number][], name: string, duration: number){
         for (let index = 0; index < eventTimes.length; index++) {
             let date    = calculateDateTime(eventTimes[index]);
-            let startdt = date?.format("YYYYMMDDHHmmSS");
-            let enddt   = date?.add(duration,"minutes").format("YYYYMMDDHHmmSS");
-
+            let startdt = date?.format('YYYY-M-D-H-m').split("-"); //Creates an array
+            let enddt   = date?.add(duration,"minutes").format('YYYY-M-D-H-m').split("-");
             events.push({
-                description: name,
-                class: 'PUBLIC',
-                start:{
-                    value: startdt,
-                    tzId:'America/Los_Angeles'
-                },
-                end:  {
-                    value: enddt,
-                    tzId:'America/Los_Angeles'
-                },
+                title: name,
+                start: startdt?.map(Number),
+                end: enddt?.map(Number),
             });
-
         }
-        const cal: Calendar = {
-            version: '1.0',
-            prodId:'CFUR',
-            events: events
-        }
-        // const builder = new Builder(cal)
-        // let mycalendar = builder.build()
     }
 
+    function createCalendar() {
+        const { error, value } = ics.createEvents(events)
+        if (error) {
+        console.log(error)
+        return
+        }
+        console.log(value)
+    }
+
+
+    function run() {
+        readFile();
+        console.log('test')
+        createCalendar();
+    }
     // Uses the 'sunday' const to calculate a date time from the incoming event times
     function calculateDateTime(eventTimes: [string,number]){
         for (let index = 0; index < eventTimes.length; index++) {
@@ -165,10 +165,7 @@ const MainUi = () => {
             }
         }
     }
-    // Converts moment.js datetime format to a format supported by ikalendar
-    function convertDateTime(_datetime: any){
 
-    }
     return (
         <Grid
             container
@@ -234,7 +231,7 @@ const MainUi = () => {
                 xs={6}
             >
                 <Button
-                    onClick={readFile}
+                    onClick={run}
                     variant="contained"
                     color="secondary"
                 >Run</Button>

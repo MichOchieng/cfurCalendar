@@ -26,7 +26,7 @@ const MainUi = () => {
     const [files,setFiles]               = useState<File[]>([]);
 
     const ics    = require('ics');
-    const events: any = [];
+    let events: any = [];
     const sunday = moment().day("Sunday").hour(0).minute(0).seconds(0);
 
     // Handlers for dragging and dropping on upload area
@@ -39,6 +39,7 @@ const MainUi = () => {
 
     // Handlers for reading files
     function readFile (){
+        events = [] // Clear events for this scan
         // Loop through files from the upload area
         for (let i = 0; i < files.length; i++) {
             let reader = new FileReader();  // Not a const to allow for reader to be refreshed
@@ -106,40 +107,59 @@ const MainUi = () => {
                     }
                 }
                 createEvents(eventTimes,eventName,duration)
+                createCalendar();
             };
             let file = files[i];
             reader.readAsText(file);
-
         }
     }
 
     function createEvents(eventTimes: [string,number][], name: string, duration: number){
         for (let index = 0; index < eventTimes.length; index++) {
             let date    = calculateDateTime(eventTimes[index]);
-            let startdt = date?.format('YYYY-M-D-H-m').split("-"); //Creates an array
-            let enddt   = date?.add(duration,"minutes").format('YYYY-M-D-H-m').split("-");
+            let startdt = date!.format('YYYYMMDDHHmmss'); //Creates an array
+            // let enddt   = date?.add(duration,"minutes").format('YYYY-M-D-H-m').split("-");
+            console.log("start: " + startdt);
             events.push({
                 title: name,
-                start: startdt?.map(Number),
-                end: enddt?.map(Number),
+                start: [
+                    parseInt(startdt!.slice(0,4)),
+                    parseInt(startdt!.slice(5,6)),
+                    parseInt(startdt!.slice(6,8)),
+                    parseInt(startdt!.slice(9,10)),
+                    parseInt(startdt!.slice(11,12)),
+                ],
+                duration: {
+                    minutes:duration
+                },
             });
         }
+        
     }
 
     function createCalendar() {
-        const { error, value } = ics.createEvents(events)
+        const { error, value } = ics.createEvents(events);
         if (error) {
-        console.log(error)
-        return
+        console.log(error);
+        return;
         }
-        console.log(value)
+        download(value);
+    }
+
+    function download(val:string) {
+        const element = document.createElement("a");
+        const file = new Blob([val],{
+            type: "text/plain"
+        });
+        element.href = URL.createObjectURL(file);
+        element.download = "mycal.ics";
+        document.body.appendChild(element);
+        element.click();
     }
 
 
     function run() {
         readFile();
-        console.log('test')
-        createCalendar();
     }
     // Uses the 'sunday' const to calculate a date time from the incoming event times
     function calculateDateTime(eventTimes: [string,number]){

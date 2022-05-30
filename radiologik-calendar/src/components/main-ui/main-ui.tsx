@@ -1,10 +1,19 @@
 import { 
         AppBar,
+        Box,
         Button,
         Container,
+        Dialog,
+        DialogActions,
+        DialogContent,
+        DialogContentText,
+        DialogTitle,
         Grid,
         Paper, 
-        Typography 
+        TextField, 
+        Typography, 
+        useMediaQuery, 
+        useTheme
         } 
     from "@mui/material";
 import { 
@@ -13,21 +22,34 @@ import {
         } 
     from "react";
 import classNames from "classnames";
-import UploadFileIcon from '@mui/icons-material/UploadFile';
 
 import UploadArea from "../upload-area/upload-area";
 import FileList from "../upload-area/file-list";
 import moment from "moment";
 
 const MainUi = () => {
-
     // Create states for upload area and uploaded files
     const [isAreaActive,setIsAreaActive] = useState(false);
     const [files,setFiles]               = useState<File[]>([]);
 
-    const ics    = require('ics');
-    let events: any = [];
-    const sunday = moment().day("Sunday").hour(0).minute(0).seconds(0);
+    // Calendar related values
+    const ics          = require('ics');
+    let events: any    = [];
+    const sunday       = moment().day("Sunday").hour(0).minute(0).seconds(0);
+    const numCalendars = useState(0);
+
+    // Settings dialog handlers
+    const [open, setOpen] = useState(false);
+    const theme = useTheme();
+    const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+
+    const handleClickOpen = () => {
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+    };
 
     // Handlers for dragging and dropping on upload area
     const onDragStateChange = useCallback((dragActive: boolean) => {
@@ -157,10 +179,6 @@ const MainUi = () => {
         element.click();
     }
 
-
-    function run() {
-        readFile();
-    }
     // Uses the 'sunday' const to calculate a date time from the incoming event times
     function calculateDateTime(eventTimes: [string,number]){
         for (let index = 0; index < eventTimes.length; index++) {
@@ -187,33 +205,40 @@ const MainUi = () => {
     }
 
     return (
+        
         <Grid
             container
         >
-            {/* First row */}
-            <AppBar
-                position="static"
-                sx={{
-                    marginBottom:"10vh",
-
-                }}
+            <Grid
+                item
+                xs={12}
             >
-                <Container
-                    maxWidth="xl"
+                {/* First row */}
+                <AppBar
+                    position="static"
+                    sx={{
+                        marginBottom:"10vh",
+
+                    }}
                 >
-                    <Typography
-                        variant="h6" 
-                        component="div" 
-                        sx={{ flexGrow: 1, padding:"0.5em" }}
+                    <Container
+                        maxWidth="xl"
                     >
-                        Radiologik Calendar
-                    </Typography>   
-                </Container>
-            </AppBar>
+                        <Typography
+                            variant="h6" 
+                            component="div" 
+                            sx={{ flexGrow: 1, padding:"0.5em" }}
+                        >
+                            Radiologik Calendar
+                        </Typography>   
+                    </Container>
+                </AppBar>
+            </Grid>
             {/* Second row */}
             <Grid 
                 item
                 xs={12}
+                
             >
                 <Paper
                     className={classNames('uploadArea', {
@@ -229,44 +254,94 @@ const MainUi = () => {
                         justifyContent:"center",
                     }}
                 >
-                    <UploadArea
-                        onDragStateChange={onDragStateChange}
-                        onDropFiles={onDropFiles}
+                    {/* Upload area and button container */}
+                    <Grid
+                        container
                     >
-                        <h2> Drop files here</h2>
-                            {files.length === 0 ? (
-                                <h3>No files to scan</h3>
-                                ) :
-                                (
-                                    <h3>Files to scan: {files.length}</h3>
-                                )
-                            }
-                        <FileList files={files}/>
-                    </UploadArea>
+                        {/* Upload area */}
+                        <Grid
+                            item
+                            xs={12}
+                            sx={{
+                                display:"flex",
+                                alignItems:"center",
+                                justifyContent:"center",
+                            }}
+                        >
+                            <UploadArea
+                                onDragStateChange={onDragStateChange}
+                                onDropFiles={onDropFiles}
+                            >
+                            <h2> Drop files here</h2>
+                                {files.length === 0 ? (
+                                    <h3>No files to scan</h3>
+                                    ) :
+                                    (
+                                        <h3>Files to scan: {files.length}</h3>
+                                    )
+                                }
+                            <FileList files={files}/>
+                            </UploadArea>
+                        </Grid>
+                        {/* Buttons */}
+                        <Grid
+                            item
+                            xs={12}
+                            sx={{              
+                                display:"flex",
+                                alignItems:"center",
+                                justifyContent:"center",
+                                marginBottom: "1em"
+                            }}
+                        >
+                            <Button
+                                onClick={readFile}
+                                variant="contained"
+                                color="secondary"
+                            >Download
+                            </Button>
+                            <Box sx={{width: "25%"}} />
+                            <Button
+                                onClick={handleClickOpen}
+                                variant="contained"
+                                color="secondary"
+                            >Settings
+                            </Button>
+                            <Dialog 
+                                open={open} 
+                                onClose={handleClose}
+                                aria-describedby="alert-dialog-slide-description"
+                            >
+                                <DialogTitle>Subscribe</DialogTitle>
+                                <DialogContent>
+                                <DialogContentText>
+                                    To subscribe to this website, please enter your email address here. We
+                                    will send updates occasionally.
+                                </DialogContentText>
+                                <TextField
+                                    autoFocus
+                                    margin="dense"
+                                    id="name"
+                                    label="Email Address"
+                                    type="email"
+                                    fullWidth
+                                    variant="standard"
+                                />
+                                </DialogContent>
+                                <DialogActions>
+                                <Button onClick={handleClose}>Cancel</Button>
+                                <Button onClick={handleClose}>Subscribe</Button>
+                                </DialogActions>
+                            </Dialog>
+                        </Grid>
+                    </Grid>
+                
                 </Paper>
-            </Grid>
-            {/* Thrid row */}
-            <Grid 
-                item
-                xs={6}
-            >
-                <Button
-                    onClick={run}
-                    variant="contained"
-                    color="secondary"
-                >Run</Button>
-            </Grid>
-            <Grid 
-                item
-                xs={6}
-            >
-                <Button
-                    variant="contained"
-                    color="secondary"
-                >Settings</Button>
+                
             </Grid>
         </Grid>
     )
 };
+
 
 export default MainUi;

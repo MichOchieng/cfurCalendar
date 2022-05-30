@@ -2,6 +2,7 @@ import {
         AppBar,
         Box,
         Button,
+        ButtonGroup,
         Container,
         Dialog,
         DialogActions,
@@ -10,10 +11,7 @@ import {
         DialogTitle,
         Grid,
         Paper, 
-        TextField, 
         Typography, 
-        useMediaQuery, 
-        useTheme
         } 
     from "@mui/material";
 import { 
@@ -22,6 +20,8 @@ import {
         } 
     from "react";
 import classNames from "classnames";
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 
 import UploadArea from "../upload-area/upload-area";
 import FileList from "../upload-area/file-list";
@@ -36,12 +36,10 @@ const MainUi = () => {
     const ics          = require('ics');
     let events: any    = [];
     const sunday       = moment().day("Sunday").hour(0).minute(0).seconds(0);
-    const numCalendars = useState(0);
+    const [numCalendars,setNumCalendars] = useState(0);
 
     // Settings dialog handlers
     const [open, setOpen] = useState(false);
-    const theme = useTheme();
-    const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -50,6 +48,15 @@ const MainUi = () => {
     const handleClose = () => {
         setOpen(false);
     };
+
+    const handleDecrement = () => {
+        if (numCalendars < 1) {
+            console.log("Can't generate negative calendars!"); 
+        }
+        else{
+            setNumCalendars((numCalendars - 1))
+        }
+    }
 
     // Handlers for dragging and dropping on upload area
     const onDragStateChange = useCallback((dragActive: boolean) => {
@@ -307,30 +314,58 @@ const MainUi = () => {
                                 color="secondary"
                             >Settings
                             </Button>
+                            {/* Pop up dialog */}
                             <Dialog 
                                 open={open} 
                                 onClose={handleClose}
                                 aria-describedby="alert-dialog-slide-description"
                             >
-                                <DialogTitle>Subscribe</DialogTitle>
+                                <DialogTitle>Settings</DialogTitle>
                                 <DialogContent>
-                                <DialogContentText>
-                                    To subscribe to this website, please enter your email address here. We
-                                    will send updates occasionally.
-                                </DialogContentText>
-                                <TextField
-                                    autoFocus
-                                    margin="dense"
-                                    id="name"
-                                    label="Email Address"
-                                    type="email"
-                                    fullWidth
-                                    variant="standard"
-                                />
+                                    <DialogContentText>
+                                        Enter the number of calendars you would like to generate along with a text file defining those calendars
+                                    </DialogContentText>
+                                    <Box
+                                        sx={{
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                        }}
+                                    >
+                                        <Box
+                                            sx={{
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                border: "2px solid black",
+                                                borderRadius: "10px",
+                                                padding: "0.5em",
+                                                margin: "0.5em",
+                                            }}
+                                        >
+                                            <Typography>
+                                                {numCalendars}
+                                            </Typography>
+                                        </Box>
+                                        <ButtonGroup 
+                                            disableElevation variant="contained"
+                                        >
+                                            <Button
+                                                onClick={() => setNumCalendars((numCalendars + 1))}
+                                            >
+                                                <AddCircleIcon/>
+                                            </Button>
+                                            <Button
+                                                onClick={handleDecrement}
+                                            >
+                                                <RemoveCircleIcon/>
+                                            </Button>
+                                        </ButtonGroup>
+                                    </Box>
                                 </DialogContent>
                                 <DialogActions>
-                                <Button onClick={handleClose}>Cancel</Button>
-                                <Button onClick={handleClose}>Subscribe</Button>
+                                    <Button onClick={handleClose}>Cancel</Button>
+                                    <Button onClick={handleClose}>Save</Button>
                                 </DialogActions>
                             </Dialog>
                         </Grid>

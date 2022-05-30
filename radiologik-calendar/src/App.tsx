@@ -1,7 +1,6 @@
 import React from 'react';
 
 import MainUi   from './components/main-ui/main-ui';
-import Settings from './components/settings/settings';
 import Header   from './components/header/header';
 import { ThemeProvider,CssBaseline, Paper } from '@mui/material';
 
@@ -19,6 +18,7 @@ const App = () => {
               display:"flex",
               alignItems:"center",
               justifyContent:"center",
+              boxShadow: "none"
             }}
           >
             <MainUi/>

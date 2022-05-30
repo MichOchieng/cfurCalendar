@@ -10,6 +10,7 @@ import {
         DialogContentText,
         DialogTitle,
         Grid,
+        Input,
         Paper, 
         Typography, 
         } 
@@ -26,6 +27,7 @@ import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import UploadArea from "../upload-area/upload-area";
 import FileList from "../upload-area/file-list";
 import moment from "moment";
+import { UploadFile } from "@mui/icons-material";
 
 const MainUi = () => {
     // Create states for upload area and uploaded files
@@ -36,7 +38,7 @@ const MainUi = () => {
     const ics          = require('ics');
     let events: any    = [];
     const sunday       = moment().day("Sunday").hour(0).minute(0).seconds(0);
-    const [numCalendars,setNumCalendars] = useState(0);
+    const [numCalendars,setNumCalendars] = useState(1);
 
     // Settings dialog handlers
     const [open, setOpen] = useState(false);
@@ -50,8 +52,8 @@ const MainUi = () => {
     };
 
     const handleDecrement = () => {
-        if (numCalendars < 1) {
-            console.log("Can't generate negative calendars!"); 
+        if (numCalendars == 1) {
+            console.log("Must at least generate one calendar!"); 
         }
         else{
             setNumCalendars((numCalendars - 1))
@@ -337,13 +339,17 @@ const MainUi = () => {
                                             sx={{
                                                 alignItems: "center",
                                                 justifyContent: "center",
-                                                border: "2px solid black",
+                                                border: "2px solid #987407",
                                                 borderRadius: "10px",
                                                 padding: "0.5em",
                                                 margin: "0.5em",
                                             }}
                                         >
-                                            <Typography>
+                                            <Typography
+                                                sx={{
+                                                    fontWeight: "bold",
+                                                }}
+                                            >
                                                 {numCalendars}
                                             </Typography>
                                         </Box>
@@ -361,11 +367,19 @@ const MainUi = () => {
                                                 <RemoveCircleIcon/>
                                             </Button>
                                         </ButtonGroup>
+                                        
                                     </Box>
                                 </DialogContent>
                                 <DialogActions>
-                                    <Button onClick={handleClose}>Cancel</Button>
-                                    <Button onClick={handleClose}>Save</Button>
+                                    {/* Upload button */}
+                                    <Button variant="contained" component="label" color="secondary">
+                                        <input type="file" hidden/>
+                                        <UploadFile/>
+                                    </Button>
+                                    {/* Divider that alows left alignment for upload button */}
+                                    <div style={{flex: '1 0 0'}}></div> 
+                                    <Button variant="contained" onClick={handleClose}>Cancel</Button>
+                                    <Button variant="contained" onClick={handleClose}>Save</Button>
                                 </DialogActions>
                             </Dialog>
                         </Grid>

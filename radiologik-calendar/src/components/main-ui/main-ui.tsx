@@ -42,6 +42,7 @@ const MainUi = () => {
 
     // Settings dialog handlers
     const [open, setOpen] = useState(false);
+    const calendarBlocks = new Map<string,string[]>();
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -57,10 +58,27 @@ const MainUi = () => {
     }
 
     const handleCancel = () => {
+        // Revert numCalendars to default, clear the calendarBlocks and close the dialog
+        setNumCalendars(1);
+        calendarBlocks.clear();
         setOpen(false);
     }
 
-    const handleSave = () => {
+    const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        // Initialize calendar blocks
+        e.preventDefault();
+        const reader = new FileReader();
+        reader.onload = () => {
+          const text = reader.result;
+          console.log(text);
+        };
+
+        if (!e.target.files || e.target.files.length === 0) {
+            console.log("Error reading file");
+        }else{
+            reader.readAsText(e.target.files[0]); 
+        }
+    
         setOpen(false);
     }
     // Handlers for dragging and dropping on upload area
@@ -328,7 +346,7 @@ const MainUi = () => {
                                 <DialogTitle>Settings</DialogTitle>
                                 <DialogContent>
                                     <DialogContentText>
-                                        Enter the number of calendars you would like to generate along with a text file defining those calendars.
+                                        Enter the number of calendars you would like to generate then upload a text file defining those calendars.
                                     </DialogContentText>
                                     <Box
                                         sx={{
@@ -374,15 +392,23 @@ const MainUi = () => {
                                     </Box>
                                 </DialogContent>
                                 <DialogActions>
-                                    {/* Upload button */}
-                                    <Button variant="contained" component="label" color="secondary">
-                                        <input type="file" hidden />
+                                    <Button 
+                                        variant="contained" 
+                                        onClick={handleCancel}
+                                        sx={{
+                                            marginRight: "0.4em"
+                                        }}
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button 
+                                        variant="contained" 
+                                        component="label" 
+                                        color="secondary"
+                                    >
+                                        <input type="file" hidden onChange={(e) => handleUpload(e)}/>
                                         <UploadFile />
                                     </Button>
-                                    {/* Divider that alows left alignment for upload button */}
-                                    <div style={{ flex: '1 0 0' }}></div>
-                                    <Button variant="contained" onClick={handleCancel}>Cancel</Button>
-                                    <Button variant="contained" onClick={handleSave}>Save</Button>
                                 </DialogActions>
                             </Dialog>
                         </Grid>

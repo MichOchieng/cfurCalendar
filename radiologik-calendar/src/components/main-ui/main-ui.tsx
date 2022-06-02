@@ -41,8 +41,10 @@ const MainUi = () => {
     const [numCalendars, setNumCalendars] = useState(1);
 
     // Settings dialog handlers
-    const [open, setOpen] = useState(false);
-    const calendarBlocks = new Map<string,string[]>();
+    const [open, setOpen]        = useState(false);
+    const calendarBlocks         = new Map<string,string[]>();
+    const [multiCal,setMultiCal] = useState(false);
+
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -69,16 +71,41 @@ const MainUi = () => {
         e.preventDefault();
         const reader = new FileReader();
         reader.onload = () => {
-          const text = reader.result;
-          console.log(text);
+        /*
+            Read in lines of input file
+            Every odd line = Calendar block name
+            Every even line = Calendar block events
+            Add these combinations to the calendarBlocks Map
+        */
+          const text  = reader.result;
+          const lines = (text as string).split(/\r\n|\n/);
+          for (let index = 0; index < lines.length - 1; index++) {
+            //   Creates entries 
+              if(index % 2 === 0){
+                let tempName   = lines[index];
+                let tempEvents = lines[index + 1].split(/,|~/);
+                calendarBlocks.set(tempName,tempEvents);
+              }
+          }
+        /*
+            Confirm the amount of calendar blocks matches the numCalendars input
+            if 
+                numCalendars > 1 -> and numCalendars > 1
+            then
+                multiCal = true
+        */
+            (numCalendars === calendarBlocks.size && numCalendars > 1) ? setMultiCal(true) : setMultiCal(false);
+
+        // Default to 1 calendar block if there is a mismatch between numCalendars and calendarBlock.size
+            (numCalendars !== calendarBlocks.size) ? setNumCalendars(1) : setNumCalendars(calendarBlocks.size);
         };
 
         if (!e.target.files || e.target.files.length === 0) {
-            console.log("Error reading file");
+            console.log("Error reading file!");
         }else{
             reader.readAsText(e.target.files[0]); 
         }
-    
+        console.log(calendarBlocks);
         setOpen(false);
     }
     // Handlers for dragging and dropping on upload area

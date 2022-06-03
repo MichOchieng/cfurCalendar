@@ -38,13 +38,15 @@ const MainUi = () => {
     const ics = require('ics');
     let events: any = [];
     const sunday = moment().day("Sunday").hour(0).minute(0).seconds(0);
+    const calendarBlocks                  = new Map<string,string[]>();
     const [numCalendars, setNumCalendars] = useState(1);
+    const [multiCal,setMultiCal]          = useState(false);
+    const [currentCalendar,setCurrentCalendar] = useState("");
+    const [currentEvents,setCurrentEvents]     = useState([""]);
+
 
     // Settings dialog handlers
     const [open, setOpen]        = useState(false);
-    const calendarBlocks         = new Map<string,string[]>();
-    const [multiCal,setMultiCal] = useState(false);
-
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -108,6 +110,7 @@ const MainUi = () => {
         console.log(calendarBlocks);
         setOpen(false);
     }
+
     // Handlers for dragging and dropping on upload area
     const onDragStateChange = useCallback((dragActive: boolean) => {
         setIsAreaActive(dragActive)
@@ -116,13 +119,36 @@ const MainUi = () => {
         setFiles(files)
     }, []);
 
+    function run(){
+        if (multiCal) {
+            /*
+                Loop over the calendar blocks (key)
+                    set the current calendar block
+                    set current calendar events  
+            */
+           console.log("Multi-calendar run.");
+           calendarBlocks.forEach((value:string[], key:string) => {
+                console.log("Current calendar: " + key);
+                setCurrentCalendar(key);
+                setCurrentEvents(value);
+                readFile();
+           });
+        }else{
+            console.log("Single-calendar run.");
+            readFile();
+        }
+    }
+
+
     // Handlers for reading files
     function readFile() {
+        console.log("Reading file...");
+        
         events = [] // Clear events for this scan
         // Loop through files from the upload area
         for (let i = 0; i < files.length; i++) {
             let reader = new FileReader();  // Not a const to allow for reader to be refreshed
-            reader.onloadend = () => {
+            reader.onload = () => {
                 // Seperate lines of each file
                 let lines = (reader.result as string).split(/\r\n|\n/);
                 let days: string[] = [];
@@ -196,24 +222,34 @@ const MainUi = () => {
     function createEvents(eventTimes: [string, number][], name: string, duration: number) {
         for (let index = 0; index < eventTimes.length; index++) {
             let date = calculateDateTime(eventTimes[index]);
-            let startdt = date!.format('YYYYMMDDHHmmss'); //Creates an array
-            // let enddt   = date?.add(duration,"minutes").format('YYYY-M-D-H-m').split("-");
-            console.log("start: " + startdt);
-            events.push({
-                title: name,
-                start: [
-                    parseInt(startdt!.slice(0, 4)),
-                    parseInt(startdt!.slice(5, 6)),
-                    parseInt(startdt!.slice(6, 8)),
-                    parseInt(startdt!.slice(9, 10)),
-                    parseInt(startdt!.slice(11, 12)),
-                ],
-                duration: {
-                    minutes: duration
-                },
-            });
+            let startdt = date!.format('YYYYMMDDHHmmss');
+
+            // Check to see if this event is in the current calendar
+            if(multiCal){
+                if (currentEvents.indexOf(name) > -1) {
+                    pushEvent(name,startdt,duration);
+                }
+            }else{
+                pushEvent(name,startdt,duration);
+            }
         }
 
+    }
+
+    function pushEvent(name:string, startdt: string, duration:number){
+        events.push({
+            title: name,
+            start: [
+                parseInt(startdt!.slice(0, 4)),
+                parseInt(startdt!.slice(5, 6)),
+                parseInt(startdt!.slice(6, 8)),
+                parseInt(startdt!.slice(9, 10)),
+                parseInt(startdt!.slice(11, 12)),
+            ],
+            duration: {
+                minutes: duration
+            },
+        });
     }
 
     function createCalendar() {
@@ -231,7 +267,7 @@ const MainUi = () => {
             type: "text/plain"
         });
         element.href = URL.createObjectURL(file);
-        element.download = "mycal.ics";
+        element.download = (multiCal) ? currentCalendar.concat(".ics"): "radiologikCalendar.ics";
         document.body.appendChild(element);
         element.click();
     }
@@ -352,7 +388,7 @@ const MainUi = () => {
                             }}
                         >
                             <Button
-                                onClick={readFile}
+                                onClick={run}
                                 variant="contained"
                                 color="secondary"
                             >Download

@@ -120,7 +120,7 @@ const UploadArea = memo(
         useEffect(() => {
             const temp = UploadAreaRef?.current
             if(temp) {
-                console.log("Mounting...");
+                // Mounting
                 temp.addEventListener('drop',handleDrop)
                 temp.addEventListener('dragover',handleDrag)
                 temp.addEventListener('dragenter',handleDragIn)
@@ -129,7 +129,7 @@ const UploadArea = memo(
 
             // Unmount liteners
             return () => {
-                console.log("Unmounting...");
+                // Unmounting
                 temp?.removeEventListener('drop',handleDrop)
                 temp?.removeEventListener('dragover',handleDrag)
                 temp?.removeEventListener('dragenter',handleDragIn)

@@ -38,9 +38,9 @@ const MainUi = () => {
     const ics = require('ics');
     let events: any = [];
     const sunday = moment().day("Sunday").hour(0).minute(0).seconds(0);
-    const calendarBlocks                  = new Map<string,string[]>();
-    const [numCalendars, setNumCalendars] = useState(1);
-    const [multiCal,setMultiCal]          = useState(false);
+    const [calendarBlocks,setCalendarBlocks]   = useState(new Map<string,string[]>());
+    const [numCalendars, setNumCalendars]      = useState(1);
+    const [multiCal,setMultiCal]               = useState(false);
     const [currentCalendar,setCurrentCalendar] = useState("");
     const [currentEvents,setCurrentEvents]     = useState([""]);
 
@@ -86,7 +86,7 @@ const MainUi = () => {
               if(index % 2 === 0){
                 let tempName   = lines[index];
                 let tempEvents = lines[index + 1].split(/,|~/);
-                calendarBlocks.set(tempName,tempEvents);
+                setCalendarBlocks(calendarBlocks.set(tempName,tempEvents));
               }
           }
         /*
@@ -107,7 +107,10 @@ const MainUi = () => {
         }else{
             reader.readAsText(e.target.files[0]); 
         }
+        console.log("Calendar Blocks after upload");
+        
         console.log(calendarBlocks);
+        // run();
         setOpen(false);
     }
 
@@ -127,7 +130,9 @@ const MainUi = () => {
                     set current calendar events  
             */
            console.log("Multi-calendar run.");
-           calendarBlocks.forEach((value:string[], key:string) => {
+           console.log(calendarBlocks);
+           
+           calendarBlocks.forEach((value, key) => {
                 console.log("Current calendar: " + key);
                 setCurrentCalendar(key);
                 setCurrentEvents(value);

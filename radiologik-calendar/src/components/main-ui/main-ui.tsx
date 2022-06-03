@@ -10,7 +10,6 @@ import {
     DialogContentText,
     DialogTitle,
     Grid,
-    Input,
     Paper,
     Typography,
 }
@@ -38,15 +37,15 @@ const MainUi = () => {
     const ics = require('ics');
     let events: any = [];
     const sunday = moment().day("Sunday").hour(0).minute(0).seconds(0);
-    const [calendarBlocks,setCalendarBlocks]   = useState(new Map<string,string[]>());
-    const [numCalendars, setNumCalendars]      = useState(1);
-    const [multiCal,setMultiCal]               = useState(false);
-    const [currentCalendar,setCurrentCalendar] = useState("");
-    const [currentEvents,setCurrentEvents]     = useState([""]);
+    const [calendarBlocks, setCalendarBlocks] = useState(new Map<string, string[]>());
+    const [numCalendars, setNumCalendars] = useState(1);
+    const [multiCal, setMultiCal] = useState(false);
+    const [currentCalendar, setCurrentCalendar] = useState("");
+    const [currentEvents, setCurrentEvents] = useState([""]);
 
 
     // Settings dialog handlers
-    const [open, setOpen]        = useState(false);
+    const [open, setOpen] = useState(false);
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -69,48 +68,45 @@ const MainUi = () => {
     }
 
     const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        calendarBlocks.clear(); // Reset for incoming calendar blocks
         // Initialize calendar blocks
         e.preventDefault();
         const reader = new FileReader();
         reader.onload = () => {
-        /*
-            Read in lines of input file
-            Every odd line = Calendar block name
-            Every even line = Calendar block events
-            Add these combinations to the calendarBlocks Map
-        */
-          const text  = reader.result;
-          const lines = (text as string).split(/\r\n|\n/);
-          for (let index = 0; index < lines.length - 1; index++) {
-            //   Creates entries 
-              if(index % 2 === 0){
-                let tempName   = lines[index];
-                let tempEvents = lines[index + 1].split(/,|~/);
-                setCalendarBlocks(calendarBlocks.set(tempName,tempEvents));
-              }
-          }
-        /*
-            Confirm the amount of calendar blocks matches the numCalendars input
-            if 
-                numCalendars > 1 -> and numCalendars > 1
-            then
-                multiCal = true
-        */
+            /*
+                Read in lines of input file
+                Every odd line = Calendar block name
+                Every even line = Calendar block events
+                Add these combinations to the calendarBlocks Map
+            */
+            const text = reader.result;
+            const lines = (text as string).split(/\r\n|\n/);
+            for (let index = 0; index < lines.length - 1; index++) {
+                //   Creates entries 
+                if (index % 2 === 0) {
+                    let tempName = lines[index];
+                    let tempEvents = lines[index + 1].split(/,|~/);
+                    setCalendarBlocks(calendarBlocks.set(tempName, tempEvents));
+                }
+            }
+            /*
+                Confirm the amount of calendar blocks matches the numCalendars input
+                if 
+                    numCalendars > 1 -> and numCalendars > 1
+                then
+                    multiCal = true
+            */
             (numCalendars === calendarBlocks.size && numCalendars > 1) ? setMultiCal(true) : setMultiCal(false);
 
-        // Default to 1 calendar block if there is a mismatch between numCalendars and calendarBlock.size
+            // Default to 1 calendar block if there is a mismatch between numCalendars and calendarBlock.size
             (numCalendars !== calendarBlocks.size) ? setNumCalendars(1) : setNumCalendars(calendarBlocks.size);
         };
 
         if (!e.target.files || e.target.files.length === 0) {
             console.log("Error reading file!");
-        }else{
-            reader.readAsText(e.target.files[0]); 
+        } else {
+            reader.readAsText(e.target.files[0]);
         }
-        console.log("Calendar Blocks after upload");
-        
-        console.log(calendarBlocks);
-        // run();
         setOpen(false);
     }
 
@@ -122,126 +118,154 @@ const MainUi = () => {
         setFiles(files)
     }, []);
 
-    function run(){
+    async function run() {
+        setCurrentCalendar("");
+        setCurrentEvents([""]);
         if (multiCal) {
             /*
                 Loop over the calendar blocks (key)
                     set the current calendar block
                     set current calendar events  
             */
-           console.log("Multi-calendar run.");
-           console.log(calendarBlocks);
-           
-           calendarBlocks.forEach((value, key) => {
+            console.log("Multi-calendar run.");
+            for (const [key, value] of calendarBlocks) {
                 console.log("Current calendar: " + key);
+                console.log("Current events: " + value);
                 setCurrentCalendar(key);
                 setCurrentEvents(value);
-                readFile();
-           });
-        }else{
+                for (let i = 0; i < files.length; i++) {
+                    let file = files[i];
+                    await file.text()
+                        .then((response) => {
+                            console.log("Parsing " + file.name);
+                            let lines = response.split(/\r\n|\n/);
+                            parseFile(lines);
+                        })
+                        .catch((e) => {
+                            alert(e.message);
+                        });
+                }
+                console.log(events);
+            }
+        } else {
             console.log("Single-calendar run.");
-            readFile();
+            for (const [key, value] of calendarBlocks) {
+                console.log("Current calendar: " + key);
+                console.log("Current events: " + value);
+                setCurrentCalendar(key);
+                setCurrentEvents(value);
+                for (let i = 0; i < files.length; i++) {
+                    let file = files[i];
+                    await file.text()
+                        .then((response) => {
+                            console.log("Parsing " + file.name);
+                            let lines = response.split(/\r\n|\n/);
+                            parseFile(lines);
+                        })
+                        .catch((e) => {
+                            alert(e.message);
+                        });
+                }
+                console.log(events);
+            }
+            createCalendar();
         }
     }
 
+    function parseFile(lines: string[]) {
 
-    // Handlers for reading files
-    function readFile() {
-        console.log("Reading file...");
-        
-        events = [] // Clear events for this scan
-        // Loop through files from the upload area
-        for (let i = 0; i < files.length; i++) {
-            let reader = new FileReader();  // Not a const to allow for reader to be refreshed
-            reader.onload = () => {
-                // Seperate lines of each file
-                let lines = (reader.result as string).split(/\r\n|\n/);
-                let days: string[] = [];
-                let duration: number = 0;
-                let startTimes: number[] = [];
-                let eventName: string = '';
-                let eventTimes: [string, number][] = [];
-                for (let j = 0; j < 23; j++) {
-                    // Init vars
-                    switch (j) {
-                        // Scheduled days
-                        case 1:
-                            const tempDays = lines[j].split("/");
-                            days = tempDays
-                            // Determine the correct days and remove '_'
-                            for (const [index, val] of tempDays.entries()) {
-                                if (val[0] == 'S') {
-                                    days[index] = "Su";
-                                }
-                                else if (val[2] == 'T') {
-                                    days[index] = "Tu";
-                                }
-                                else if (val[4] == 'S') {
-                                    days[index] = "Sa";
-                                }
-                                else if (val[6] == 'T') {
-                                    days[index] = "Th";
-                                }
-                                else {
-                                    // Only keeps alphabetic chars
-                                    days[index] = days[index].replace(/[^A-Za-z0-9]/g, "")
-                                }
-                            }
-                            break;
-                        // Duration
-                        case 2:
-                            duration += parseInt(lines[j].replace(" \n", ""))
-                            break;
-                        //  Start times
-                        case 5:
-                            // Converts strings of start times to ints
-                            let temp1 = lines[j].split("/")
-                            for (let index = 0; index < temp1.length; index++) {
-                                startTimes.push(parseInt(temp1[index]) / 2)
-                            }
-                            break;
-                        // Event name
-                        case 22:
-                            // Strip the first 43 chars
-                            // Put everything in quotation mars in a list and grab the first occurance
-                            let temp = lines[j].slice(43)
-                            let temp2 = temp.match('"([^"]*?)"')
-                            eventName = ((temp2 != null) ? temp2[0] : "")
-                            break;
+        let days: string[] = [];
+        let duration: number = 0;
+        let startTimes: number[] = [];
+        let eventName: string = '';
+        let eventTimes: [string, number][] = [];
+
+        for (let j = 0; j < 23; j++) {
+            // Init vars
+            switch (j) {
+                // Scheduled days
+                case 1:
+                    const tempDays = lines[j].split("/");
+                    days = tempDays
+                    // Determine the correct days and remove '_'
+                    for (const [index, val] of tempDays.entries()) {
+                        if (val[0] == 'S') {
+                            days[index] = "Su";
+                        }
+                        else if (val[2] == 'T') {
+                            days[index] = "Tu";
+                        }
+                        else if (val[4] == 'S') {
+                            days[index] = "Sa";
+                        }
+                        else if (val[6] == 'T') {
+                            days[index] = "Th";
+                        }
+                        else {
+                            // Only keeps alphabetic chars
+                            days[index] = days[index].replace(/[^A-Za-z0-9]/g, "")
+                        }
                     }
-                }
-                // Create a list of 'tuples' with event day and time
-                for (const [index, val] of days.entries()) {
-                    if (val != '') {
-                        eventTimes.push([days[index], startTimes[index]])
+                    break;
+                // Duration
+                case 2:
+                    duration += parseInt(lines[j].replace(" \n", ""))
+                    break;
+                //  Start times
+                case 5:
+                    // Converts strings of start times to ints
+                    let temp1 = lines[j].split("/")
+                    for (let index = 0; index < temp1.length; index++) {
+                        startTimes.push(parseInt(temp1[index]) / 2)
                     }
-                }
-                createEvents(eventTimes, eventName, duration)
-                createCalendar();
-            };
-            let file = files[i];
-            reader.readAsText(file);
+                    break;
+                // Event name
+                case 22:
+                    // Strip the first 43 chars
+                    // Put everything in quotation mars in a list and grab the first occurance
+                    let temp = lines[j].slice(43)
+                    let temp2 = temp.match('"([^"]*?)"')
+                    eventName = ((temp2 != null) ? temp2[0] : "")
+                    break;
+            }
         }
+        // Create a list of 'tuples' with event day and time
+        for (const [index, val] of days.entries()) {
+            if (val != '') {
+                eventTimes.push([days[index], startTimes[index]])
+            }
+        }
+        createEvents(eventTimes, eventName.slice(1, eventName.length - 1), duration) // Using a slice to get rid of quotation marks
     }
 
     function createEvents(eventTimes: [string, number][], name: string, duration: number) {
+        console.log("Scanning " + name + "...");
         for (let index = 0; index < eventTimes.length; index++) {
             let date = calculateDateTime(eventTimes[index]);
             let startdt = date!.format('YYYYMMDDHHmmss');
 
             // Check to see if this event is in the current calendar
-            if(multiCal){
-                if (currentEvents.indexOf(name) > -1) {
-                    pushEvent(name,startdt,duration);
+            if (multiCal) {
+                if (currentEvents.includes(name)) {
+                    console.log("--------------------------");
+                    
+                    console.log(currentEvents[currentEvents.indexOf(name)]);
+                    
+                    console.log("Adding " + name + " to " + currentCalendar + " calendar block");
+                    pushEvent(name, startdt, duration);
+                }else{
+                    console.log(name + " is not in " + currentCalendar);
+                    
                 }
-            }else{
-                pushEvent(name,startdt,duration);
+            } else {
+                console.log("Adding " + name + " to " + currentCalendar + " calendar block");
+                pushEvent(name, startdt, duration);
             }
         }
 
     }
 
-    function pushEvent(name:string, startdt: string, duration:number){
+    function pushEvent(name: string, startdt: string, duration: number) {
         events.push({
             title: name,
             start: [
@@ -258,6 +282,7 @@ const MainUi = () => {
     }
 
     function createCalendar() {
+        console.log("Creating calendar for " + currentCalendar);
         const { error, value } = ics.createEvents(events);
         if (error) {
             console.log(error);
@@ -272,7 +297,7 @@ const MainUi = () => {
             type: "text/plain"
         });
         element.href = URL.createObjectURL(file);
-        element.download = (multiCal) ? currentCalendar.concat(".ics"): "radiologikCalendar.ics";
+        element.download = (multiCal) ? currentCalendar.concat(".ics") : "radiologikCalendar.ics";
         document.body.appendChild(element);
         element.click();
     }
@@ -460,8 +485,8 @@ const MainUi = () => {
                                     </Box>
                                 </DialogContent>
                                 <DialogActions>
-                                    <Button 
-                                        variant="contained" 
+                                    <Button
+                                        variant="contained"
                                         onClick={handleCancel}
                                         sx={{
                                             marginRight: "0.4em"
@@ -469,12 +494,12 @@ const MainUi = () => {
                                     >
                                         Cancel
                                     </Button>
-                                    <Button 
-                                        variant="contained" 
-                                        component="label" 
+                                    <Button
+                                        variant="contained"
+                                        component="label"
                                         color="secondary"
                                     >
-                                        <input type="file" hidden onChange={(e) => handleUpload(e)}/>
+                                        <input type="file" hidden onChange={(e) => handleUpload(e)} />
                                         <UploadFile />
                                     </Button>
                                 </DialogActions>

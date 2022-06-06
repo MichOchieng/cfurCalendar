@@ -1,9 +1,7 @@
 import {
-    AppBar,
     Box,
     Button,
     ButtonGroup,
-    Container,
     Dialog,
     DialogActions,
     DialogContent,
@@ -17,7 +15,6 @@ import {
 import {
     useState,
     useCallback,
-    useEffect
 }
     from "react";
 import classNames from "classnames";
@@ -32,17 +29,17 @@ import { UploadFile } from "@mui/icons-material";
 const MainUi = () => {
     // Create states for upload area and uploaded files
     const [isAreaActive, setIsAreaActive] = useState(false);
-    const [files, setFiles]               = useState<File[]>([]);
+    const [files, setFiles] = useState<File[]>([]);
 
     // Calendar related values
-    const ics           = require('ics');
-    const sunday        = moment().day("Sunday").hour(0).minute(0).seconds(0);
-    let events: any     = [];
-    let currentCalendar: string   = "";
-    let currentEvents: string[]   = [""]
+    const ics = require('ics');
+    const sunday = moment().day("Sunday").hour(0).minute(0).seconds(0);
+    let events: any = [];
+    let currentCalendar: string = "";
+    let currentEvents: string[] = [""]
     const [calendarBlocks, setCalendarBlocks] = useState(new Map<string, string[]>());
-    const [numCalendars, setNumCalendars]     = useState(1);
-    const [multiCal, setMultiCal]             = useState(false);
+    const [numCalendars, setNumCalendars] = useState(1);
+    const [multiCal, setMultiCal] = useState(false);
 
     // Settings dialog handlers
     const [open, setOpen] = useState(false);
@@ -132,7 +129,7 @@ const MainUi = () => {
             */
             for (const [key, value] of calendarBlocks) {
                 currentCalendar = key;
-                currentEvents   = value;
+                currentEvents = value;
 
                 for (let i = 0; i < files.length; i++) {
                     let file = files[i];
@@ -151,7 +148,7 @@ const MainUi = () => {
         } else {
             for (const [key, value] of calendarBlocks) {
                 currentCalendar = key;
-                currentEvents   = value;
+                currentEvents = value;
                 for (let i = 0; i < files.length; i++) {
                     let file = files[i];
                     await file.text()
@@ -322,187 +319,150 @@ const MainUi = () => {
     }
 
     return (
-
-        <Grid
-            container
+        <Paper
+            className={classNames('uploadArea', {
+                'uploadAreaActive': isAreaActive
+            })}
+            sx={{
+                width: "80vw",
+                height: "30vh",
+                margin: "0 auto",
+                marginBottom: "10vh",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+            }}
         >
+            {/* Upload area and button container */}
             <Grid
-                item
-                xs={12}
+                container
             >
-                {/* First row */}
-                <AppBar
-                    position="static"
+                {/* Upload area */}
+                <Grid
+                    item
+                    xs={12}
                     sx={{
-                        marginBottom: "10vh",
-
-                    }}
-                >
-                    <Container
-                        maxWidth="xl"
-                    >
-                        <Typography
-                            variant="h6"
-                            component="div"
-                            sx={{ flexGrow: 1, padding: "0.5em" }}
-                        >
-                            Radiologik Calendar
-                        </Typography>
-                    </Container>
-                </AppBar>
-            </Grid>
-            {/* Second row */}
-            <Grid
-                item
-                xs={12}
-
-            >
-                <Paper
-                    className={classNames('uploadArea', {
-                        'uploadAreaActive': isAreaActive
-                    })}
-                    sx={{
-                        width: "80vw",
-                        height: "30vh",
-                        margin: "0 auto",
-                        marginBottom: "10vh",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
                     }}
                 >
-                    {/* Upload area and button container */}
-                    <Grid
-                        container
+                    <UploadArea
+                        onDragStateChange={onDragStateChange}
+                        onDropFiles={onDropFiles}
                     >
-                        {/* Upload area */}
-                        <Grid
-                            item
-                            xs={12}
-                            sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                            }}
-                        >
-                            <UploadArea
-                                onDragStateChange={onDragStateChange}
-                                onDropFiles={onDropFiles}
+                        <h2> Drop files here</h2>
+                        {files.length === 0 ? (
+                            <h3>No files to scan</h3>
+                        ) :
+                            (
+                                <h3>Files to scan: {files.length}</h3>
+                            )
+                        }
+                        <FileList files={files} />
+                    </UploadArea>
+                </Grid>
+                {/* Buttons */}
+                <Grid
+                    item
+                    xs={12}
+                    sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        marginBottom: "1em"
+                    }}
+                >
+                    <Button
+                        onClick={run}
+                        variant="contained"
+                        color="secondary"
+                    >Download
+                    </Button>
+                    <Box sx={{ width: "25%" }} />
+                    <Button
+                        onClick={handleClickOpen}
+                        variant="contained"
+                        color="secondary"
+                    >Settings
+                    </Button>
+                    {/* Pop up dialog */}
+                    <Dialog
+                        open={open}
+                        onClose={handleCancel}
+                        aria-describedby="alert-dialog-slide-description"
+                    >
+                        <DialogTitle>Settings</DialogTitle>
+                        <DialogContent>
+                            <DialogContentText>
+                                Enter the number of calendars you would like to generate then upload a text file defining those calendars.
+                            </DialogContentText>
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                }}
                             >
-                                <h2> Drop files here</h2>
-                                {files.length === 0 ? (
-                                    <h3>No files to scan</h3>
-                                ) :
-                                    (
-                                        <h3>Files to scan: {files.length}</h3>
-                                    )
-                                }
-                                <FileList files={files} />
-                            </UploadArea>
-                        </Grid>
-                        {/* Buttons */}
-                        <Grid
-                            item
-                            xs={12}
-                            sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                marginBottom: "1em"
-                            }}
-                        >
-                            <Button
-                                onClick={run}
-                                variant="contained"
-                                color="secondary"
-                            >Download
-                            </Button>
-                            <Box sx={{ width: "25%" }} />
-                            <Button
-                                onClick={handleClickOpen}
-                                variant="contained"
-                                color="secondary"
-                            >Settings
-                            </Button>
-                            {/* Pop up dialog */}
-                            <Dialog
-                                open={open}
-                                onClose={handleCancel}
-                                aria-describedby="alert-dialog-slide-description"
-                            >
-                                <DialogTitle>Settings</DialogTitle>
-                                <DialogContent>
-                                    <DialogContentText>
-                                        Enter the number of calendars you would like to generate then upload a text file defining those calendars.
-                                    </DialogContentText>
-                                    <Box
+                                <Box
+                                    sx={{
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        border: "2px solid #987407",
+                                        borderRadius: "10px",
+                                        padding: "0.5em",
+                                        margin: "0.5em",
+                                    }}
+                                >
+                                    <Typography
                                         sx={{
-                                            display: "flex",
-                                            flexDirection: "column",
-                                            alignItems: "center",
-                                            justifyContent: "center",
+                                            fontWeight: "bold",
                                         }}
                                     >
-                                        <Box
-                                            sx={{
-                                                alignItems: "center",
-                                                justifyContent: "center",
-                                                border: "2px solid #987407",
-                                                borderRadius: "10px",
-                                                padding: "0.5em",
-                                                margin: "0.5em",
-                                            }}
-                                        >
-                                            <Typography
-                                                sx={{
-                                                    fontWeight: "bold",
-                                                }}
-                                            >
-                                                {numCalendars}
-                                            </Typography>
-                                        </Box>
-                                        <ButtonGroup
-                                            disableElevation variant="contained"
-                                        >
-                                            <Button
-                                                onClick={() => setNumCalendars((numCalendars + 1))}
-                                            >
-                                                <AddCircleIcon />
-                                            </Button>
-                                            <Button
-                                                onClick={handleDecrement}
-                                            >
-                                                <RemoveCircleIcon />
-                                            </Button>
-                                        </ButtonGroup>
+                                        {numCalendars}
+                                    </Typography>
+                                </Box>
+                                <ButtonGroup
+                                    disableElevation variant="contained"
+                                >
+                                    <Button
+                                        onClick={() => setNumCalendars((numCalendars + 1))}
+                                    >
+                                        <AddCircleIcon />
+                                    </Button>
+                                    <Button
+                                        onClick={handleDecrement}
+                                    >
+                                        <RemoveCircleIcon />
+                                    </Button>
+                                </ButtonGroup>
 
-                                    </Box>
-                                </DialogContent>
-                                <DialogActions>
-                                    <Button
-                                        variant="contained"
-                                        onClick={handleCancel}
-                                        sx={{
-                                            marginRight: "0.4em"
-                                        }}
-                                    >
-                                        Cancel
-                                    </Button>
-                                    <Button
-                                        variant="contained"
-                                        component="label"
-                                        color="secondary"
-                                    >
-                                        <input type="file" hidden onChange={(e) => handleUpload(e)} />
-                                        <UploadFile />
-                                    </Button>
-                                </DialogActions>
-                            </Dialog>
-                        </Grid>
-                    </Grid>
-                </Paper>
+                            </Box>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button
+                                variant="contained"
+                                onClick={handleCancel}
+                                sx={{
+                                    marginRight: "0.4em"
+                                }}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                variant="contained"
+                                component="label"
+                                color="secondary"
+                            >
+                                <input type="file" hidden onChange={(e) => handleUpload(e)} />
+                                <UploadFile />
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
+                </Grid>
             </Grid>
-        </Grid>
+        </Paper>
     )
 };
 

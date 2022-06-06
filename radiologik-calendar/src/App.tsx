@@ -1,7 +1,8 @@
 import React from 'react';
 
 import MainUi   from './components/main-ui/main-ui';
-import { ThemeProvider,CssBaseline, Paper } from '@mui/material';
+import { Header } from './components/header/header';
+import { ThemeProvider,CssBaseline, Paper, Grid } from '@mui/material';
 
 import { theme } from './styles';
 
@@ -12,15 +13,28 @@ const App = () => {
         >
           <Paper
             sx={{
-              height:"100%",
-              width:"100%",
-              display:"flex",
-              alignItems:"center",
-              justifyContent:"center",
-              boxShadow: "none"
+              height:"100vh",
+              width:"100vw",
+              boxShadow: "none",
+              backgroundColor: "red"
             }}
           >
-            <MainUi/>
+            <Grid
+              container
+            >
+              <Grid
+                item
+                xs={12}
+              >
+                <Header/>
+              </Grid>
+              <Grid
+                item
+                xs={12}
+              >
+                <MainUi/>
+              </Grid>
+            </Grid>
           </Paper>
           <CssBaseline/>
         </ThemeProvider>

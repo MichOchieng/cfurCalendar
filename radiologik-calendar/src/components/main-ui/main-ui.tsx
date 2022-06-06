@@ -16,7 +16,8 @@ import {
     from "@mui/material";
 import {
     useState,
-    useCallback
+    useCallback,
+    useEffect
 }
     from "react";
 import classNames from "classnames";
@@ -36,13 +37,14 @@ const MainUi = () => {
     // Calendar related values
     const ics = require('ics');
     let events: any = [];
+    let currentCalendar = "";
+    let currentEvents   = [""]
     const sunday = moment().day("Sunday").hour(0).minute(0).seconds(0);
     const [calendarBlocks, setCalendarBlocks] = useState(new Map<string, string[]>());
     const [numCalendars, setNumCalendars] = useState(1);
     const [multiCal, setMultiCal] = useState(false);
-    const [currentCalendar, setCurrentCalendar] = useState("");
-    const [currentEvents, setCurrentEvents] = useState([""]);
-
+    // const [currentCalendar, setCurrentCalendar] = useState("");
+    // const [currentEvents, setCurrentEvents] = useState([""]);
 
     // Settings dialog handlers
     const [open, setOpen] = useState(false);
@@ -119,20 +121,19 @@ const MainUi = () => {
     }, []);
 
     async function run() {
-        setCurrentCalendar("");
-        setCurrentEvents([""]);
+        // Refresh events and current calendar (workaround for using state values)
+        currentEvents   = [""];
+        currentCalendar = "";
         if (multiCal) {
             /*
                 Loop over the calendar blocks (key)
                     set the current calendar block
                     set current calendar events  
             */
-            console.log("Multi-calendar run.");
             for (const [key, value] of calendarBlocks) {
-                console.log("Current calendar: " + key);
-                console.log("Current events: " + value);
-                setCurrentCalendar(key);
-                setCurrentEvents(value);
+                currentCalendar = key;
+                currentEvents   = value;
+
                 for (let i = 0; i < files.length; i++) {
                     let file = files[i];
                     await file.text()
@@ -145,15 +146,10 @@ const MainUi = () => {
                             alert(e.message);
                         });
                 }
-                console.log(events);
+                createCalendar();
             }
         } else {
-            console.log("Single-calendar run.");
             for (const [key, value] of calendarBlocks) {
-                console.log("Current calendar: " + key);
-                console.log("Current events: " + value);
-                setCurrentCalendar(key);
-                setCurrentEvents(value);
                 for (let i = 0; i < files.length; i++) {
                     let file = files[i];
                     await file.text()
@@ -172,8 +168,7 @@ const MainUi = () => {
         }
     }
 
-    function parseFile(lines: string[]) {
-
+    const parseFile = (lines: string[]) => {
         let days: string[] = [];
         let duration: number = 0;
         let startTimes: number[] = [];
@@ -255,7 +250,6 @@ const MainUi = () => {
                     pushEvent(name, startdt, duration);
                 }else{
                     console.log(name + " is not in " + currentCalendar);
-                    
                 }
             } else {
                 console.log("Adding " + name + " to " + currentCalendar + " calendar block");
@@ -289,6 +283,7 @@ const MainUi = () => {
             return;
         }
         download(value);
+        events = []; // Clear the events array to for the next calendar to be made
     }
 
     function download(val: string) {

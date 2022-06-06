@@ -32,19 +32,17 @@ import { UploadFile } from "@mui/icons-material";
 const MainUi = () => {
     // Create states for upload area and uploaded files
     const [isAreaActive, setIsAreaActive] = useState(false);
-    const [files, setFiles] = useState<File[]>([]);
+    const [files, setFiles]               = useState<File[]>([]);
 
     // Calendar related values
-    const ics = require('ics');
-    let events: any = [];
-    let currentCalendar = "";
-    let currentEvents   = [""]
-    const sunday = moment().day("Sunday").hour(0).minute(0).seconds(0);
+    const ics           = require('ics');
+    const sunday        = moment().day("Sunday").hour(0).minute(0).seconds(0);
+    let events: any     = [];
+    let currentCalendar: string   = "";
+    let currentEvents: string[]   = [""]
     const [calendarBlocks, setCalendarBlocks] = useState(new Map<string, string[]>());
-    const [numCalendars, setNumCalendars] = useState(1);
-    const [multiCal, setMultiCal] = useState(false);
-    // const [currentCalendar, setCurrentCalendar] = useState("");
-    // const [currentEvents, setCurrentEvents] = useState([""]);
+    const [numCalendars, setNumCalendars]     = useState(1);
+    const [multiCal, setMultiCal]             = useState(false);
 
     // Settings dialog handlers
     const [open, setOpen] = useState(false);
@@ -105,7 +103,7 @@ const MainUi = () => {
         };
 
         if (!e.target.files || e.target.files.length === 0) {
-            console.log("Error reading file!");
+            alert("Error reading file!");
         } else {
             reader.readAsText(e.target.files[0]);
         }
@@ -122,13 +120,15 @@ const MainUi = () => {
 
     async function run() {
         // Refresh events and current calendar (workaround for using state values)
-        currentEvents   = [""];
+        currentEvents = [""];
         currentCalendar = "";
         if (multiCal) {
             /*
                 Loop over the calendar blocks (key)
                     set the current calendar block
                     set current calendar events  
+                    parse the file
+                    create calendar from parsed data
             */
             for (const [key, value] of calendarBlocks) {
                 currentCalendar = key;
@@ -150,6 +150,8 @@ const MainUi = () => {
             }
         } else {
             for (const [key, value] of calendarBlocks) {
+                currentCalendar = key;
+                currentEvents   = value;
                 for (let i = 0; i < files.length; i++) {
                     let file = files[i];
                     await file.text()
@@ -230,7 +232,7 @@ const MainUi = () => {
                 eventTimes.push([days[index], startTimes[index]])
             }
         }
-        createEvents(eventTimes, eventName.slice(1, eventName.length - 1), duration) // Using a slice to get rid of quotation marks
+        createEvents(eventTimes, eventName.slice(1, eventName.length - 1), duration) // Using a slice to get rid of quotation marks in the string
     }
 
     function createEvents(eventTimes: [string, number][], name: string, duration: number) {
@@ -238,20 +240,15 @@ const MainUi = () => {
         for (let index = 0; index < eventTimes.length; index++) {
             let date = calculateDateTime(eventTimes[index]);
             let startdt = date!.format('YYYYMMDDHHmmss');
-
             // Check to see if this event is in the current calendar
             if (multiCal) {
                 if (currentEvents.includes(name)) {
-                    console.log("--------------------------");
-                    
-                    console.log(currentEvents[currentEvents.indexOf(name)]);
-                    
                     console.log("Adding " + name + " to " + currentCalendar + " calendar block");
                     pushEvent(name, startdt, duration);
-                }else{
+                } else {
                     console.log(name + " is not in " + currentCalendar);
                 }
-            } else {
+            } else { // Single Calendar creation
                 console.log("Adding " + name + " to " + currentCalendar + " calendar block");
                 pushEvent(name, startdt, duration);
             }
@@ -280,6 +277,7 @@ const MainUi = () => {
         const { error, value } = ics.createEvents(events);
         if (error) {
             console.log(error);
+            alert("Error creating calendar for " + currentCalendar)
             return;
         }
         download(value);
@@ -292,6 +290,7 @@ const MainUi = () => {
             type: "text/plain"
         });
         element.href = URL.createObjectURL(file);
+        // Unique calendar names will be created if multical is true
         element.download = (multiCal) ? currentCalendar.concat(".ics") : "radiologikCalendar.ics";
         document.body.appendChild(element);
         element.click();

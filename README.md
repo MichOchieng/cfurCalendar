@@ -2,9 +2,8 @@
 Applications to convert Radiologik Scheduler files into calendars.
 
 ## Links
-- [Web App](https://github.com/MichOchieng/radiologikCalendar/tree/master/radiologik-calendar)
-- Python App (DEPRECIATED)
-
+- [React App](https://github.com/MichOchieng/radiologikCalendar/tree/master/radiologik-calendar)
+- Python App (DEPRECATED)
 
 ## References
 - [iCalendar.org](https://icalendar.org/)

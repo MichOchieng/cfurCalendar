@@ -14,7 +14,8 @@ const App = () => {
               height:"100vh",
               width:"100vw",
               boxShadow: "none",
-              backgroundColor: "#ece3c0"
+              backgroundColor: "#ece3c0",
+              borderRadius: "0% 0% 20% 20%"
             }}
           >
             <Grid

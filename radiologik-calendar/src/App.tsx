@@ -1,5 +1,3 @@
-import React from 'react';
-
 import MainUi   from './components/main-ui/main-ui';
 import { Header } from './components/header/header';
 import { ThemeProvider,CssBaseline, Paper, Grid } from '@mui/material';
@@ -16,7 +14,7 @@ const App = () => {
               height:"100vh",
               width:"100vw",
               boxShadow: "none",
-              backgroundColor: "red"
+              backgroundColor: "#ece3c0"
             }}
           >
             <Grid

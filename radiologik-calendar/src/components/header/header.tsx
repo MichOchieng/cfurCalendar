@@ -8,7 +8,8 @@ export const Header = () => {
         position="static"
         sx={{
             marginBottom: "10vh",
-
+            background: "none",
+            boxShadow: "none"
         }}
         >
             <Container
@@ -17,7 +18,12 @@ export const Header = () => {
                 <Typography
                     variant="h6"
                     component="div"
-                    sx={{ flexGrow: 1, padding: "0.5em" }}
+                    sx={{ 
+                        flexGrow: 1,
+                        padding: "0.5em", 
+                        fontFamily: 'Roboto Serif, serif',
+                        color: '#ef4040'
+                    }}
                 >
                     Radiologik Calendar
                 </Typography>

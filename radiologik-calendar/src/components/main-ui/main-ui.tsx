@@ -325,7 +325,7 @@ const MainUi = () => {
             })}
             sx={{
                 width: "80vw",
-                height: "30vh",
+                height: "35vh",
                 margin: "0 auto",
                 marginBottom: "10vh",
                 display: "flex",

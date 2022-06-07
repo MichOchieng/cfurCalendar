@@ -331,6 +331,7 @@ const MainUi = () => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                maxWidth: "1000px"
             }}
         >
             {/* Upload area and button container */}

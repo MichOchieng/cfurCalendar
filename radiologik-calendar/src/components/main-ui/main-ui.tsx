@@ -410,7 +410,7 @@ const MainUi = () => {
                                     sx={{
                                         alignItems: "center",
                                         justifyContent: "center",
-                                        border: "2px solid #987407",
+                                        border: "2px solid #ece3c0",
                                         borderRadius: "10px",
                                         padding: "0.5em",
                                         margin: "0.5em",
@@ -419,13 +419,14 @@ const MainUi = () => {
                                     <Typography
                                         sx={{
                                             fontWeight: "bold",
+                                            color:"black",
                                         }}
                                     >
                                         {numCalendars}
                                     </Typography>
                                 </Box>
                                 <ButtonGroup
-                                    disableElevation variant="contained"
+                                    disableElevation variant="outlined"
                                 >
                                     <Button
                                         onClick={() => setNumCalendars((numCalendars + 1))}
@@ -443,10 +444,12 @@ const MainUi = () => {
                         </DialogContent>
                         <DialogActions>
                             <Button
-                                variant="contained"
+                                variant="outlined"
                                 onClick={handleCancel}
                                 sx={{
-                                    marginRight: "0.4em"
+                                    marginRight: "0.4em",
+                                    backgroundColor: "#ece3c0",
+                                    color: "black"
                                 }}
                             >
                                 Cancel

@@ -144,7 +144,7 @@ const UploadArea = memo(
                 sx={{
                     width:"90%",
                     height:"80%",
-                    border: "2px dashed #987407",
+                    border: "2px dashed #ece3c0",
                     padding:"1em",
                     margin:"0 auto",
                     boxShadow:"none",

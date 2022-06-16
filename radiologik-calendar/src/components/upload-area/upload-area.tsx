@@ -149,6 +149,7 @@ const UploadArea = memo(
                     margin:"0 auto",
                     boxShadow:"none",
                     overflowY:"scroll",
+                    maxHeight: "20vh",
                 }}
             >
                 {props.children}

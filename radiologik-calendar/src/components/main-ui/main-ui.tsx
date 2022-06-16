@@ -134,15 +134,19 @@ const MainUi = () => {
 
                 for (let i = 0; i < files.length; i++) {
                     let file = files[i];
-                    await file.text()
+                    if (file.name !== '') {
+                        await file.text()
                         .then((response) => {
-                            console.log("Parsing " + file.name);
+                            console.log("Parsing file '" + file.name + "'...");
                             let lines = response.split(/\r\n|\n/);
                             parseFile(lines);
                         })
                         .catch((e) => {
                             alert(e.message);
                         });
+                    }else{
+                        console.log("Skipping '" + file.name + "', file has no event name.");
+                    }
                 }
                 // Only create a calendar if there are events in the event list
                 (events.size > 0) ? createCalendar() : alert("Calendar creation aborted, no events in event list!");
@@ -151,7 +155,8 @@ const MainUi = () => {
             console.log("Running in single calendar mode...");
             for (let i = 0; i < files.length; i++) {
                 let file = files[i];
-                await file.text()
+                if (file.name !== '') {
+                    await file.text()
                     .then((response) => {
                         console.log("Parsing file '" + file.name + "'...");
                         let lines = response.split(/\r\n|\n/);
@@ -160,9 +165,12 @@ const MainUi = () => {
                     .catch((e) => {
                         alert(e.message);
                     });
+                }else{
+                    console.log("Skipping '" + file.name + "', file has no event name.");
+                }  
             }
             // Only create a calendar if there are events in the event list
-            (events.size > 0) ? createCalendar() : alert("Calendar creation aborted, no events in event list!");
+            (events.length > 0) ? createCalendar() : alert("Calendar creation aborted, no events in event list!");
         }
     }
 
@@ -179,8 +187,19 @@ const MainUi = () => {
                 // Scheduled days
                 case 1:
                     const tempDays = lines[j].split("/");
-                    days = tempDays
+                    days = [...tempDays]
                     // Determine the correct days and remove '_'
+                    /*
+                        File            Index   Day
+                        representation
+                        S______         0       Sunday
+                        _M_____         1       Monday
+                        __T____         2       Tuesday
+                        ___W___         3       Wednesday
+                        ____T__         4       Thursday
+                        _____F_         5       Friday
+                        ______S         6       Saturday
+                    */
                     for (const [index, val] of tempDays.entries()) {
                         if (val[0] == 'S') {
                             days[index] = "Su";
@@ -188,11 +207,11 @@ const MainUi = () => {
                         else if (val[2] == 'T') {
                             days[index] = "Tu";
                         }
-                        else if (val[4] == 'S') {
-                            days[index] = "Sa";
-                        }
-                        else if (val[6] == 'T') {
+                        else if (val[4] == 'T') {
                             days[index] = "Th";
+                        }
+                        else if (val[6] == 'S') {
+                            days[index] = "Sa";
                         }
                         else {
                             // Only keeps alphabetic chars

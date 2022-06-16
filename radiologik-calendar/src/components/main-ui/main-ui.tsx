@@ -120,6 +120,7 @@ const MainUi = () => {
         currentEvents = [""];
         currentCalendar = "";
         if (multiCal) {
+            console.log("Running in multi-calendar mode...");
             /*
                 Loop over the calendar blocks (key)
                     set the current calendar block
@@ -143,27 +144,25 @@ const MainUi = () => {
                             alert(e.message);
                         });
                 }
-                createCalendar();
+                // Only create a calendar if there are events in the event list
+                (events.size > 0) ? createCalendar() : alert("Calendar creation aborted, no events in event list!");
             }
         } else {
-            for (const [key, value] of calendarBlocks) {
-                currentCalendar = key;
-                currentEvents = value;
-                for (let i = 0; i < files.length; i++) {
-                    let file = files[i];
-                    await file.text()
-                        .then((response) => {
-                            console.log("Parsing " + file.name);
-                            let lines = response.split(/\r\n|\n/);
-                            parseFile(lines);
-                        })
-                        .catch((e) => {
-                            alert(e.message);
-                        });
-                }
-                console.log(events);
+            console.log("Running in single calendar mode...");
+            for (let i = 0; i < files.length; i++) {
+                let file = files[i];
+                await file.text()
+                    .then((response) => {
+                        console.log("Parsing file '" + file.name + "'...");
+                        let lines = response.split(/\r\n|\n/);
+                        parseFile(lines);
+                    })
+                    .catch((e) => {
+                        alert(e.message);
+                    });
             }
-            createCalendar();
+            // Only create a calendar if there are events in the event list
+            (events.size > 0) ? createCalendar() : alert("Calendar creation aborted, no events in event list!");
         }
     }
 
@@ -236,18 +235,24 @@ const MainUi = () => {
         console.log("Scanning " + name + "...");
         for (let index = 0; index < eventTimes.length; index++) {
             let date = calculateDateTime(eventTimes[index]);
-            let startdt = date!.format('YYYYMMDDHHmmss');
-            // Check to see if this event is in the current calendar
-            if (multiCal) {
-                if (currentEvents.includes(name)) {
+            // Skips over events with no datetime
+            if(date === undefined){
+                console.log("Cannot add event '" + name + "' to calendar.");
+            }else{
+                // Check to see if this event is in the current calendar
+                if (multiCal) {
+                    if (currentEvents.includes(name)) {
+                        let startdt = date!.format('YYYYMMDDHHmmss');
+                        console.log("Adding " + name + " to " + currentCalendar + " calendar block");
+                        pushEvent(name, startdt, duration);
+                    } else {
+                        console.log(name + " is not in " + currentCalendar);
+                    }
+                } else { // Single Calendar creation
+                    let startdt = date!.format('YYYYMMDDHHmmss');
                     console.log("Adding " + name + " to " + currentCalendar + " calendar block");
                     pushEvent(name, startdt, duration);
-                } else {
-                    console.log(name + " is not in " + currentCalendar);
                 }
-            } else { // Single Calendar creation
-                console.log("Adding " + name + " to " + currentCalendar + " calendar block");
-                pushEvent(name, startdt, duration);
             }
         }
 
@@ -313,7 +318,8 @@ const MainUi = () => {
                     return moment(sunday).add(6, 'day').set("hour", eventTimes[1]);
                 default:
                     console.log("Error occured calculating event datetime!")
-                    break;
+                    console.log("Value entered: " + eventTimes[0]);
+                    return undefined;
             }
         }
     }

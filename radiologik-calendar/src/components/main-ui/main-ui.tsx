@@ -49,7 +49,7 @@ const MainUi = () => {
     };
 
     const handleDecrement = () => {
-        if (numCalendars == 1) {
+        if (numCalendars === 1) {
             console.log("Must at least generate one calendar!");
         }
         else {
@@ -201,16 +201,16 @@ const MainUi = () => {
                         ______S         6       Saturday
                     */
                     for (const [index, val] of tempDays.entries()) {
-                        if (val[0] == 'S') {
+                        if (val[0] === 'S') {
                             days[index] = "Su";
                         }
-                        else if (val[2] == 'T') {
+                        else if (val[2] === 'T') {
                             days[index] = "Tu";
                         }
-                        else if (val[4] == 'T') {
+                        else if (val[4] === 'T') {
                             days[index] = "Th";
                         }
-                        else if (val[6] == 'S') {
+                        else if (val[6] === 'S') {
                             days[index] = "Sa";
                         }
                         else {
@@ -229,6 +229,7 @@ const MainUi = () => {
                     let temp1 = lines[j].split("/")
                     for (let index = 0; index < temp1.length; index++) {
                         startTimes.push(parseInt(temp1[index]) / 2)
+                        console.log("Start: " + (parseInt(temp1[index]) / 2));
                     }
                     break;
                 // Event name
@@ -243,7 +244,7 @@ const MainUi = () => {
         }
         // Create a list of 'tuples' with event day and time
         for (const [index, val] of days.entries()) {
-            if (val != '') {
+            if (val !== '') {
                 eventTimes.push([days[index], startTimes[index]])
             }
         }
@@ -251,13 +252,14 @@ const MainUi = () => {
     }
 
     function createEvents(eventTimes: [string, number][], name: string, duration: number) {
-        console.log("Scanning " + name + "...");
+        console.log("Scanning '" + name + "'...");
         for (let index = 0; index < eventTimes.length; index++) {
             let date = calculateDateTime(eventTimes[index]);
             // Skips over events with no datetime
             if(date === undefined){
                 console.log("Cannot add event '" + name + "' to calendar.");
-            }else{
+            }
+            else{
                 // Check to see if this event is in the current calendar
                 if (multiCal) {
                     if (currentEvents.includes(name)) {
@@ -267,9 +269,10 @@ const MainUi = () => {
                     } else {
                         console.log(name + " is not in " + currentCalendar);
                     }
-                } else { // Single Calendar creation
+                } else { 
+                    // Single Calendar creation
                     let startdt = date!.format('YYYYMMDDHHmmss');
-                    console.log("Adding " + name + " to " + currentCalendar + " calendar block");
+                    console.log("Adding " + name + " to calendar...");
                     pushEvent(name, startdt, duration);
                 }
             }
@@ -284,9 +287,11 @@ const MainUi = () => {
                 parseInt(startdt!.slice(0, 4)),
                 parseInt(startdt!.slice(5, 6)),
                 parseInt(startdt!.slice(6, 8)),
-                parseInt(startdt!.slice(9, 10)),
-                parseInt(startdt!.slice(11, 12)),
+                parseInt(startdt!.slice(8, 10)),
+                parseInt(startdt!.slice(10, 12)),
             ],
+            startInputType: "local",
+            startOutputType: "local",
             duration: {
                 minutes: duration
             },
@@ -294,7 +299,7 @@ const MainUi = () => {
     }
 
     function createCalendar() {
-        console.log("Creating calendar for " + currentCalendar);
+        (multiCal) ? console.log("Creating calendar for " + currentCalendar) : console.log("Creating calendar...");
         const { error, value } = ics.createEvents(events);
         if (error) {
             console.log(error);

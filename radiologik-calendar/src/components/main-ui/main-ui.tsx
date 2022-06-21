@@ -149,7 +149,7 @@ const MainUi = () => {
                     }
                 }
                 // Only create a calendar if there are events in the event list
-                (events.size > 0) ? createCalendar() : alert("Calendar creation aborted, no events in event list!");
+                (events.length > 0) ? createCalendar() : alert("Calendar creation aborted, no events in event list!");
             }
         } else {
             console.log("Running in single calendar mode...");

@@ -1,12 +1,16 @@
 # Radiologik Calendar
-Radiologik Scheduler is the companion app to Radiologik DJ. It schedules to DJ's program queue using iTunes/Music playlists to allow a 24/7 fully-automated station. This is a web application used to convert Radiologik Scheduler files into calendars following the .ical (RFC 5545) format. 
+Radiologik Scheduler is the companion app to Radiologik DJ. It schedules to a DJ's program queue using iTunes/Music playlists to allow a 24/7 fully-automated station. This is a web application used to convert Radiologik Scheduler files into calendars following the .ical (RFC 5545) format. 
 
 ## Usage
 
 ### Radiologik Files
-This application uses one or more Radiologik Scheduler files to generate calendars, a directory of these files typically can be found in the following location 
+This application uses one or more Radiologik Scheduler files to generate calendars, a directory of these files typically can be found in the following location: 
 
 ~/Music/Radiologik/Schedule/
+<p align="center">
+    <img src="./public/img1.png" width="600">
+</p>
+
 ### Input File
 Input files will typically have the following structure:
     
@@ -73,6 +77,9 @@ you don't enter the settings to activate multi-calendar mode.
 #### Steps for calendar creation
 - Drag and drop Radiologik Scheduler files into the dotted area 
 - Hit download and wait for the prompt to download the file.
+<p align="center">
+    <img src="./public/img3.png" width="600">
+</p>
 ### Multi-Calendar Mode
 Multi-calendar mode requires another type of input file used to define each calendar block that you would like to create.  
 Below is how the file should be structured: 
@@ -87,7 +94,7 @@ Below is how the file should be structured:
 
 - Every odd line of the file must be the name of the calendar block
 - Every even line of the file must be a collection of events cotained in the above calendar block 
-- Events MUST be seperated by commas
+- Events <strong>MUST</strong> be seperated by commas
 - Be sure to avoid creating a new line (hitting enter) when writing event names, events should all be on one line
 
 Below is an example of the correct way to format this input file:
@@ -108,10 +115,17 @@ Once you have your Radiologik Scheduler files along with the text file defining 
 ready to create some calendars.
 - Drag and drop Radiologik Scheduler files into the dotted area 
 - Select the settings tab and input the number of calendars you would like to create then hit the upload button
-- This will then prompt you for a file, this is where you upload the new text file that defines your calendar blocks
-- Make sure the number you inputted matches the number of calendars defined in the input file otherwise the program will default to single calendar mode
-- After uploading the text file you can hit download and individually download your new calendar files
-    
+<p align="center">
+    <img src="./public/img2.png" width="600">
+</p>
+<ul>
+    <li>
+        This will then prompt you for a file, this is where you upload the new text file that defines your calendar blocks
+    <li>
+        Make sure the number you inputted matches the number of calendars defined in the input file otherwise the program will default to single calendar mode
+    <li>
+        After uploading the text file you can hit download and individually download your new calendar files
+</ul>
 
 
 ## References

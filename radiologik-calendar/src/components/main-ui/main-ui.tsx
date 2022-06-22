@@ -229,7 +229,6 @@ const MainUi = () => {
                     let temp1 = lines[j].split("/")
                     for (let index = 0; index < temp1.length; index++) {
                         startTimes.push(parseInt(temp1[index]) / 2)
-                        console.log("Start: " + (parseInt(temp1[index]) / 2));
                     }
                     break;
                 // Event name

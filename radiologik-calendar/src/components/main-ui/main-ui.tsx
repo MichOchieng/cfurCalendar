@@ -45,7 +45,6 @@ const MainUi = () => {
     const [open, setOpen] = useState(false);
 
     const handleClickOpen = () => {
-        console.log(diceCoefficient("Democracy Now!","democracynow"))
         setOpen(true);
     };
 

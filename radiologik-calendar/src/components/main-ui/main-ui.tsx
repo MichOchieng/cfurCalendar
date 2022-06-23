@@ -45,6 +45,7 @@ const MainUi = () => {
     const [open, setOpen] = useState(false);
 
     const handleClickOpen = () => {
+        console.log(diceCoefficient("Democracy Now!","democracynow"))
         setOpen(true);
     };
 
@@ -345,6 +346,25 @@ const MainUi = () => {
                     return undefined;
             }
         }
+    }
+
+    // Dice coefficient - Used to determine the fuzzy distance between strings
+    function getBigrams(str: string) {
+        const bigrams = new Set();
+        for (let i = 0; i < str.length - 1; i += 1) {
+          bigrams.add(str.substring(i, i + 2));
+        }
+        return bigrams;
+      }
+      
+    function intersect(set1: any, set2: any) {
+        return new Set([...set1].filter((x) => set2.has(x)));
+    }
+      
+    function diceCoefficient(str1: string, str2: string): number {
+        const bigrams1 = getBigrams(str1);
+        const bigrams2 = getBigrams(str2);
+        return (2 * intersect(bigrams1, bigrams2).size) / (bigrams1.size + bigrams2.size);
     }
 
     return (

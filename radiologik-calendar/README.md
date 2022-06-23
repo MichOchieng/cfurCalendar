@@ -80,6 +80,7 @@ you don't enter the settings to activate multi-calendar mode.
 <p align="center">
     <img src="./public/img3.png" width="600">
 </p>
+
 ### Multi-Calendar Mode
 Multi-calendar mode requires another type of input file used to define each calendar block that you would like to create.  
 Below is how the file should be structured: 

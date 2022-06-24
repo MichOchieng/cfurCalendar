@@ -216,6 +216,9 @@ const MainUi = () => {
                         else {
                             // Only keeps alphabetic chars
                             days[index] = days[index].replace(/[^A-Za-z0-9]/g, "")
+                            // Strip 'E' and 'O' from the string, denotes even and odd days
+                            days[index] = days[index].replace("E", "")
+                            days[index] = days[index].replace("O", "")
                         }
                     }
                     break;
@@ -286,21 +289,23 @@ const MainUi = () => {
     }
 
     function pushEvent(name: string, startdt: string, duration: number) {
-        events.push({
-            title: name,
-            start: [
-                parseInt(startdt!.slice(0, 4)),
-                parseInt(startdt!.slice(5, 6)),
-                parseInt(startdt!.slice(6, 8)),
-                parseInt(startdt!.slice(8, 10)),
-                parseInt(startdt!.slice(10, 12)),
-            ],
-            startInputType: "local",
-            startOutputType: "local",
-            duration: {
-                minutes: duration
-            },
-        });
+        if(name !== ''){  // Should stop all those sneaky untitled events
+            events.push({
+                title: name,
+                start: [
+                    parseInt(startdt!.slice(0, 4)),
+                    parseInt(startdt!.slice(5, 6)),
+                    parseInt(startdt!.slice(6, 8)),
+                    parseInt(startdt!.slice(8, 10)),
+                    parseInt(startdt!.slice(10, 12)),
+                ],
+                startInputType: "local",
+                startOutputType: "local",
+                duration: {
+                    minutes: duration
+                },
+            });
+        }
     }
 
     function createCalendar() {

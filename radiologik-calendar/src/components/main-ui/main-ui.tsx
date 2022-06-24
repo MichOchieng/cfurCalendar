@@ -261,12 +261,18 @@ const MainUi = () => {
             else{
                 // Check to see if this event is in the current calendar
                 if (multiCal) {
-                    if (currentEvents.includes(name)) {
-                        let startdt = date!.format('YYYYMMDDHHmmss');
-                        console.log("Adding " + name + " to " + currentCalendar + " calendar block");
-                        pushEvent(name, startdt, duration);
-                    } else {
-                        console.log(name + " is not in " + currentCalendar);
+                    for (let index = 0; index < currentEvents.length; index++) {
+                        let event = currentEvents[index];
+                        let matchProbability = diceCoefficient(name,event);
+                        if (matchProbability >= 0.8) {
+                            let startdt = date!.format('YYYYMMDDHHmmss');
+                            console.log("Adding " + name + " to " + currentCalendar + " calendar block");
+                            pushEvent(name, startdt, duration);
+                            break;
+                        }else {
+                            console.log(name + " is not in " + currentCalendar);
+                        }
+                        
                     }
                 } else { 
                     // Single Calendar creation
